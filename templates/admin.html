@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Music Server Admin</title>
+  </head>
+  <body>
+    <a href="/home">Back</a>
+    <a href="/admin/logout">Admin Logout</a>
+
+    <h1>Hello Mr. Admin Fam</h1>
+
+    <p><b>Now playing: {{.NowPlaying.Title}}</b></p>
+
+    <p>Playlist:</p>
+    <ul>
+      {{range .Playlist}}
+        <li>{{.Title}} - {{.IpAddr}} - {{.Uploader}}</li>
+      {{end}}
+    </ul>
+  </body>
+</html>

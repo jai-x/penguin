@@ -6,6 +6,8 @@
   <body>
     <h1>Test music server</h1>
 
+    <a href="/admin">Admin page</a>
+
     <p>Your alias: {{.UserAlias}}</p>
 
     <p>Please queue a video</p>
@@ -15,12 +17,12 @@
       <input type="submit">
     </form>
 
-    <p><b>Now playing: {{.NowPlaying}}</b></p>
+    <p><b>Now playing: {{.NowPlaying.Title}}</b></p>
 
     <p>Playlist:</p>
     <ul>
       {{range .Playlist}}
-        <li>{{.}}</li>
+        <li>{{.Title}} - {{.Uploader}}</li>
       {{end}}
     </ul>
   </body>
