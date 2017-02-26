@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Music Server</title>
+  </head>
+  <body>
+    <h1>Test music server</h1>
+
+    <p>Your alias: {{.UserAlias}}</p>
+
+    <p>Please queue a video</p>
+    <form action="/queue" method="POST">
+      <label for="link_input">Video link:</label>
+      <input type="text" id="link_input" name="video_link">
+      <input type="submit">
+    </form>
+
+    <p><b>Now playing: {{.NowPlaying}}</b></p>
+
+    <p>Playlist:</p>
+    <ul>
+      {{range .Playlist}}
+        <li>{{.}}</li>
+      {{end}}
+    </ul>
+  </body>
+</html>
