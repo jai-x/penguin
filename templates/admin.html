@@ -4,17 +4,39 @@
     <title>Music Server Admin</title>
   </head>
   <body>
-    <a href="/home">Back</a>
+    <a href="/">Back</a><br>
     <a href="/admin/logout">Admin Logout</a>
 
-    <h1>Hello Mr. Admin Fam</h1>
+    <h1>Admin Page</h1>
 
-    <p><b>Now playing: {{.NowPlaying.Title}}</b></p>
+    <p>
+      <b>Now playing:</b>
+      {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+      {{if .NowPlaying.ID}}
+        <b>
+          {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+        </b>
+        <form action="/admin/kill">
+          <input type="submit" value="Stop current video">
+        </form>
+      {{else}}
+        <b>Nothing Playing</b>
+      {{end}}
+    </p>
 
     <p>Playlist:</p>
     <ul>
       {{range .Playlist}}
-        <li>{{.Title}} - {{.IpAddr}} - {{.Uploader}}</li>
+        <p><b>Bucket</b></p>
+        {{range .}}
+          <li>
+            {{.Title}} - {{.IpAddr}} - {{.Uploader}}
+            <form action="/admin/remove" method="POST">
+              <input type="hidden" name="video_id" value="{{.ID}}">
+              <input type="submit" value="Remove">
+            </form>
+          </li>
+        {{end}}
       {{end}}
     </ul>
   </body>

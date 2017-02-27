@@ -9,10 +9,6 @@ import (
 	"../help"
 )
 
-func Expired(sess time.Time) bool {
-	return time.Now().After(sess)
-}
-
 type AdminSessions struct {
 	// Map of admin ip addresses to session timeout token
 	Admins map[string]time.Time
@@ -32,14 +28,19 @@ func (a *AdminSessions) Init(pass string) {
 }
 
 // Get session from client address
-func (a *AdminSessions) GetSession(addr string) (time.Time, bool){
+func (a *AdminSessions) ValidSession(addr string) bool {
 	ip := help.GetIP(addr)
 
 	a.AdminLock.RLock()
 	defer a.AdminLock.RUnlock()
 
 	expiry, exists := a.Admins[ip]
-	return expiry, exists
+	if !exists || time.Now().After(expiry) {
+		// Invalid session
+		return false
+	} else {
+		return true
+	}
 }
 
 // start session given client address

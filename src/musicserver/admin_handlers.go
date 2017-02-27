@@ -1,18 +1,15 @@
 package musicserver
 
 import (
-	"fmt"
+	"log"
+	"time"
 	"net/http"
+	"os/exec"
 	"html/template"
-
-	"../admin"
 )
 
 func adminHandler(w http.ResponseWriter, req *http.Request) {
-	token, sessExists := A.GetSession(req.RemoteAddr)
-
-	if !sessExists || admin.Expired(token) {
-		// Not logged in or session expired
+	if !A.ValidSession(req.RemoteAddr) {
 		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
 	}
 
@@ -22,12 +19,12 @@ func adminHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == "POST" {
-		req.ParseForm()
-		correct := A.VerifyPassword(req.Form["admin_pwd"][0])
+	if req.Method == http.MethodPost {
+		correct := A.VerifyPassword(req.PostFormValue("admin_pwd"))
 
 		if !correct {
-			http.Redirect(w, req, "/admin/login?info=incorrect", http.StatusSeeOther)
+			badLoginTempl, _ := template.ParseFiles("templates/login_incorrect.html")
+			badLoginTempl.Execute(w, nil)
 		} else {
 			A.StartSession(req.RemoteAddr)
 			http.Redirect(w, req, "/admin", http.StatusSeeOther)
@@ -45,5 +42,33 @@ func adminLogoutHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func adminKillHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(w, "hi fam")
+	if !A.ValidSession(req.RemoteAddr) {
+		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
+	}
+	// Use killall to kill music players
+	killPlayer := exec.Command("killall", "mpv")
+	killPlayer.Run()
+
+	log.Println("Admin killed current video")
+
+	// Allow for the video playerservice to cycle to next video
+	// Only so that when the page refreshes it shows the video not playing
+	time.Sleep(500 * time.Millisecond)
+
+	// Go back to admin page
+	http.Redirect(w, req, "/admin", http.StatusSeeOther)
+}
+
+func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
+	if !A.ValidSession(req.RemoteAddr) {
+		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
+	}
+
+	// Get video id from post data
+	if req.Method == http.MethodPost {
+		id := req.PostFormValue("video_id")
+		Q.RemoveVideo(id)
+	}
+
+	http.Redirect(w, req, "/admin", http.StatusSeeOther)
 }

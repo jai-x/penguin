@@ -17,12 +17,25 @@
       <input type="submit">
     </form>
 
-    <p><b>Now playing: {{.NowPlaying.Title}}</b></p>
+    <p>
+      <b>
+        Now playing:
+        {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+        {{if .NowPlaying.ID}}
+          {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+        {{else}}
+          Nothing Playing
+        {{end}}
+      </b>
+    </p>
 
     <p>Playlist:</p>
     <ul>
       {{range .Playlist}}
-        <li>{{.Title}} - {{.Uploader}}</li>
+        <p><b>Bucket</b></p>
+        {{range .}}
+          <li>{{.Title}} - {{.Uploader}}</li>
+        {{end}}
       {{end}}
     </ul>
   </body>

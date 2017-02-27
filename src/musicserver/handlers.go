@@ -22,20 +22,18 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 
 // Endpoint for setting alias and returns alias set page
 func aliasHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == "POST" {
-		req.ParseForm()
-		newAlias := req.Form["alias_value"][0]
+	if req.Method == http.MethodPost {
+		newAlias := req.PostFormValue("alias_value")
 
+		// Check of alias is whitespace
 		if len(strings.TrimSpace(newAlias)) == 0 {
-			// Alias is just whitespace
 			http.Redirect(w, req, "/alias", http.StatusSeeOther)
 			return
 		}
 
-		// Using a new goroutine prevents waiting on mutex for http response
-		go Q.SetAlias(req.RemoteAddr, newAlias)
+		Q.SetAlias(req.RemoteAddr, newAlias)
 
-		http.Redirect(w, req, "/home", http.StatusSeeOther)
+		http.Redirect(w, req, "/", http.StatusSeeOther)
 	} else {
 		aliasTemplate, _ := template.ParseFiles("templates/alias.html")
 		aliasTemplate.Execute(w, nil)
@@ -44,23 +42,31 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 
 // Endpoint for queuing videos via link
 func queueHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == "POST" {
+	if req.Method == http.MethodPost {
 
 		_, aliasExists := Q.GetAlias(req.RemoteAddr)
 
 		if !aliasExists {
 			http.Redirect(w, req, "/alias", http.StatusSeeOther)
-		} else {
-			req.ParseForm()
-			videoLink := req.Form["video_link"][0]
-
-			go Q.DownloadAndAddVideo(req.RemoteAddr, videoLink)
-
-			http.Redirect(w, req, "/home", http.StatusSeeOther)
 		}
+
+		videoLink := req.PostFormValue("video_link")
+
+		// If there is space in the playlist or video is whitespace
+		if !Q.CanAddVideo(req.RemoteAddr) || len(strings.TrimSpace(videoLink)) == 0{
+			vidNotAddedTempl, _ := template.ParseFiles("templates/not_added.html")
+			vidNotAddedTempl.Execute(w, nil)
+			return
+		}
+
+		// Started in new go routine to prevent response waiting
+		go Q.DownloadAndAddVideo(req.RemoteAddr, videoLink)
+
+		vidAddedTempl, _ := template.ParseFiles("templates/added.html")
+		vidAddedTempl.Execute(w, nil)
 	} else {
 		// Redirect back to homepage if not a POST request)
-		http.Redirect(w, req, "/home", http.StatusSeeOther)
+		http.Redirect(w, req, "/", http.StatusSeeOther)
 	}
 }
 

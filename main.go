@@ -11,5 +11,5 @@ func main() {
 	flag.Parse()
 
 	musicserver.Init(*debug)
-	musicserver.Run()
+	musicserver.Run(*debug)
 }
