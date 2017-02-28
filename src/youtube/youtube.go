@@ -3,7 +3,6 @@ package youtube
 import (
 	"log"
 	"os/exec"
-	"io/ioutil"
 	"path/filepath"
 )
 
@@ -51,24 +50,9 @@ func (ytdl *Downloader) GetVideo(uuid, link string) string {
 	dl := exec.Command(ytdl.executable, "-o", template, "--no-playlist", link)
 	dl.Run()
 
-	// Find the file extension using wildcard search in the download folder
-	vidPath := ytdl.downloadFolder+findWildcardFilename(ytdl.downloadFolder, uuid+".*")
+	// Uses wildcard search for file extension of vid file with uuid name
+	vidPath, _ := filepath.Glob((ytdl.downloadFolder+"/"+uuid+".*"))
 
-	// Return full path to video
-	return vidPath
-}
-
-// Wacky wildcard search function
-func findWildcardFilename(folder, pattern string) string {
-	// Get slice of files in folder
-	vidFiles, _ := ioutil.ReadDir(folder)
-
-	// Iterate over files
-	for _, vid := range vidFiles {
-		if found, _ := filepath.Match(pattern, vid.Name()); found {
-			return vid.Name()
-		}
-	}
-	// Empty string for no match
-	return ""
+	// Return first instance of file search
+	return vidPath[0]
 }
