@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	Q *state.Queue
-	A *admin.AdminSessions
+	Q state.Queue
+	A admin.AdminSessions
 
 	debug bool
 )
