@@ -1,6 +1,7 @@
 package musicserver
 
 import (
+	"../help"
 	"strings"
 	"net/http"
 	"html/template"
@@ -28,7 +29,6 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 		// Check of alias is whitespace
 		if len(strings.TrimSpace(newAlias)) == 0 {
 			http.Redirect(w, req, "/alias", http.StatusSeeOther)
-			return
 		}
 
 		Q.SetAlias(req.RemoteAddr, newAlias)
@@ -52,8 +52,14 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 
 		videoLink := req.PostFormValue("video_link")
 
-		// If there is space in the playlist or video is whitespace
-		if !Q.CanAddVideo(req.RemoteAddr) || len(strings.TrimSpace(videoLink)) == 0{
+		// Submitted video link is blank
+		if len(strings.TrimSpace(videoLink)) == 0 {
+			http.Redirect(w, req, "/", http.StatusSeeOther)
+			return
+		}
+
+		// If user has max added videos
+		if !Q.CanAddVideo(req.RemoteAddr) {
 			vidNotAddedTempl, _ := template.ParseFiles("templates/not_added.html")
 			vidNotAddedTempl.Execute(w, nil)
 			return
@@ -68,6 +74,17 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 		// Redirect back to homepage if not a POST request)
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 	}
+}
+
+func userRemoveHandler(w http.ResponseWriter, req *http.Request) {
+	// Get video id from post data
+	if req.Method == http.MethodPost {
+		id := req.PostFormValue("video_id")
+		ip := help.GetIP(req.RemoteAddr)
+		Q.UserRemoveVideo(id, ip)
+	}
+
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 // Endpoint to return playlist JSON

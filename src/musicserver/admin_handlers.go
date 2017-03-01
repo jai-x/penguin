@@ -67,7 +67,7 @@ func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
 	// Get video id from post data
 	if req.Method == http.MethodPost {
 		id := req.PostFormValue("video_id")
-		Q.RemoveVideo(id)
+		Q.AdminRemoveVideo(id)
 	}
 
 	http.Redirect(w, req, "/admin", http.StatusSeeOther)

@@ -1,56 +1,105 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Music Server</title>
+    <title>UWCS Music Server</title>
     <link rel="stylesheet" type="text/css" href="static/css/main.css">
   </head>
   <body>
-    <nav>
-      <div class="top-bar">
-        <div class="top-bar-title">
-          <a href="/">
-            <strong>UWCS Music Server</strong>
-          </a>
-        </div>
-        <div class="responsive-menu">
-          <div class="top-bar-right">
-            <a href="/admin">Admin</a>
-          </div>        
-        </div>
+
+    <div class="flex-wrapper">
+      <div class="flex-content">
+
+        <section class="top-bar">
+          <div class="row">
+            <div class="small-12 columns">
+              <div class="top-bar-title">
+                <a href="/">
+                  <strong>
+                    UWCS <span class="accent">Music Server</span>
+                  </strong>
+                </a>
+              </div>
+              <div class="top-bar-left">
+                <ul class="menu">
+                  {{$alias := .UserAlias}}
+                  <li><a href="/alias">{{.UserAlias}}</a></li>
+                </ul>
+              </div>
+              <div class="top-bar-right">
+                <ul class="menu">
+                  <li><a href="/admin">Admin</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="row margin-top-2x">
+          <div class="small-12 columns">
+
+            <h3>Add a video</h3>
+
+            <form action="/queue" method="POST">
+              <div class="input-group">
+                <span class="input-group-label">Video link</span>
+                <input type="text" class="input-group-field" name="video_link" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
+                <div class="input-group-button">
+                  <input type="submit" value="Go" class="button">
+                </div>
+              </div>
+            </form>
+
+          </div>
+        </section>
+
+        <hr>
+
+        <section class="row">
+          <div class="small-12 columns">
+
+            <h3>
+              Now playing:
+              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+              {{if .NowPlaying.ID}}
+                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+              {{else}}
+                Nothing Playing
+              {{end}}
+            </h3>
+
+            {{/*For each bucket in playlist*/}}
+            {{range .Playlist}}
+              <div class="callout">
+                  {{/*For each item in bucket*/}}
+                  {{range .}}
+                    <div class="row">
+                      <div class="small-7 columns">
+                        {{.Title}}
+                      </div>
+
+                      <div class="small-2 columns">
+                        {{if eq .Uploader $alias}}
+                          <form action="/remove" method="POST">
+                            <input type="hidden" name="video_id" value="{{.ID}}">
+                            <input type="submit" value="Remove" class="alert button small">
+                          </form>
+                        {{end}}
+                      </div>
+
+                      <div class="small-3 columns">
+                        {{.Uploader}}
+                      </div>
+                    </div>
+                    <hr>
+                  {{end}}
+              </div>
+            {{end}}
+
+          </div>
+        </section>
+
       </div>
-    </nav>
+    </div>
 
-    <main>
-      <p>Your alias: {{.UserAlias}}</p>
-
-      <p>Please queue a video</p>
-      <form action="/queue" method="POST">
-        <label for="link_input">Video link:</label>
-        <input type="text" id="link_input" name="video_link">
-        <input type="submit">
-      </form>
-
-      <p>
-        <b>
-          Now playing:
-          {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-          {{if .NowPlaying.ID}}
-            {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-          {{else}}
-            Nothing Playing
-          {{end}}
-        </b>
-      </p>
-
-      <p>Playlist:</p>
-      <ul>
-        {{range .Playlist}}
-          <p><b>Bucket</b></p>
-          {{range .}}
-            <li>{{.Title}} - {{.Uploader}}</li>
-          {{end}}
-        {{end}}
-      </ul>
-    </main>
   </body>
 </html>

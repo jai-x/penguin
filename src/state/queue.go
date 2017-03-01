@@ -189,16 +189,64 @@ func (q *Queue) DownloadAndAddVideo(addr, link string) {
 	}
 }
 
-func (q *Queue) RemoveVideo(vid_id string) {
+// This removes video and also bubbles the users video from the lower buckets upwards
+func (q *Queue) AdminRemoveVideo(remVidId string) {
 	q.ListLock.Lock()
 	defer q.ListLock.Unlock()
 
-	// Returns after finding a video with matching ID
+	foundIP := ""
+	prevIndex := 0
+
+	// Iterate over playlist
 	for index, vid := range q.Playlist {
-		if vid.ID == vid_id {
-			// Delete from slice
-			q.Playlist = append(q.Playlist[:index], q.Playlist[index+1:]...)
-			return
+		// This will evaluate to false until the ip is found at which point prevIndex is the video to remove
+		// this will then bubble the target video down to lowest position that userip occupies
+		if vid.IpAddr == foundIP {
+			q.Playlist[prevIndex] = q.Playlist[index]
+			prevIndex = index
 		}
+
+		// Find the video to remove via ID and get user ip
+		if vid.ID == remVidId {
+			prevIndex = index
+			foundIP = vid.IpAddr
+		}
+	}
+
+	// foundIp will be empty if given arguments are not valid
+	if foundIP != "" {
+		// prevIndex is now the target video in the lowest position so delete it
+		q.Playlist = append(q.Playlist[:prevIndex], q.Playlist[prevIndex+1:]...)
+	}
+}
+
+// Same as above function but requires both video id and video ip to sucessfully remove a video
+func (q *Queue) UserRemoveVideo(remVidId, remUserIp string) {
+	q.ListLock.Lock()
+	defer q.ListLock.Unlock()
+
+	foundIP := ""
+	prevIndex := 0
+
+	// Iterate over playlist
+	for index, vid := range q.Playlist {
+		// This will evaluate to false until the ip is found at which point prevIndex is the video to remove
+		// this will then bubble the target video down to lowest position that userip occupies
+		if vid.IpAddr == foundIP {
+			q.Playlist[prevIndex] = q.Playlist[index]
+			prevIndex = index
+		}
+
+		// Find the video to remove via ID and verify user trying to remove video owns it
+		if vid.ID == remVidId && vid.IpAddr == remUserIp{
+			prevIndex = index
+			foundIP = vid.IpAddr
+		}
+	}
+
+	// foundIp will be empty if given arguments are not valid
+	if foundIP != "" {
+		// prevIndex is now the target video in the lowest position so delete it
+		q.Playlist = append(q.Playlist[:prevIndex], q.Playlist[prevIndex+1:]...)
 	}
 }

@@ -45,6 +45,7 @@ func Run(debug bool) {
 	http.HandleFunc("/playlist", playlistHandler)
 	http.HandleFunc("/alias", aliasHandler)
 	http.HandleFunc("/queue", queueHandler)
+	http.HandleFunc("/remove", userRemoveHandler)
 	http.HandleFunc("/", homeHandler)
 	// Static file server
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

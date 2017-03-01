@@ -1,43 +1,93 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Music Server Admin</title>
+    <title>Music Server Admin Page</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
   </head>
   <body>
-    <a href="/">Back</a><br>
-    <a href="/admin/logout">Admin Logout</a>
 
-    <h1>Admin Page</h1>
+    <div class="flex-wrapper">
+      <div class="flex-content">
 
-    <p>
-      <b>Now playing:</b>
-      {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-      {{if .NowPlaying.ID}}
-        <b>
-          {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-        </b>
-        <form action="/admin/kill">
-          <input type="submit" value="Stop current video">
-        </form>
-      {{else}}
-        <b>Nothing Playing</b>
-      {{end}}
-    </p>
+        <section class="top-bar">
+          <div class="row">
+            <div class="small-12 columns">
+              <div class="top-bar-title">
+                <a href="/">
+                  <strong>
+                    UWCS <span class="accent">Music Server</span> Admin
+                  </strong>
+                </a>
+              </div>
+              <div class="top-bar-right">
+                <ul class="menu">
+                  <li><a href="/admin/logout">Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
 
-    <p>Playlist:</p>
-    <ul>
-      {{range .Playlist}}
-        <p><b>Bucket</b></p>
-        {{range .}}
-          <li>
-            {{.Title}} - {{.IpAddr}} - {{.Uploader}}
-            <form action="/admin/remove" method="POST">
-              <input type="hidden" name="video_id" value="{{.ID}}">
-              <input type="submit" value="Remove">
-            </form>
-          </li>
-        {{end}}
-      {{end}}
-    </ul>
+        <section class="row margin-top-2x">
+          <div class="small-12 columns">
+
+            <h3>
+              Now playing:
+
+              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+              {{if .NowPlaying.ID}}
+                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+                <form action="/admin/kill">
+                  <input type="submit" value="Stop current video" class="button expanded alert">
+                </form>
+              {{else}}
+                Nothing Playing
+              {{end}}
+            </h3>
+
+          </div>
+        </section>
+
+        <hr>
+
+        <section class="row">
+          <div class="small-12 columns">
+
+            {{/*For each bucket in playlist*/}}
+            {{range .Playlist}}
+              <div class="callout">
+                  {{/*For each item in bucket*/}}
+                  {{range .}}
+                    <div class="row">
+                      <div class="small-7 columns">
+                        {{.Title}}
+                      </div>
+
+                      <div class="small-1 columns">
+                        {{.IpAddr}}
+                      </div>
+
+                      <div class="small-2 columns">
+                          <form action="/admin/remove" method="POST">
+                            <input type="hidden" name="video_id" value="{{.ID}}">
+                            <input type="submit" value="Remove" class="alert button small">
+                          </form>
+                      </div>
+
+                      <div class="small-2 columns">
+                        {{.Uploader}}
+                      </div>
+                    </div>
+                    <hr>
+                  {{end}}
+              </div>
+            {{end}}
+
+          </div>
+        </section>
+
+      </div>
+    </div>
+
   </body>
 </html>
