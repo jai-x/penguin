@@ -1,7 +1,5 @@
 package state
 
-import "../help"
-
 // These data structures are derived from information in Queue
 // These are used for user facing data requests
 
@@ -30,47 +28,55 @@ func (v *Video) ConvertToInfo(aliasMap map[string]string) VideoInfo {
 	}
 }
 
-// Method to return PlaylistInfo from the Queue
-func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
-	// New playlist information
-	var out PlaylistInfo
-
-	// Lock playlist and aliases
+func (q *Queue) UpdateBucketCache() {
+	// Read lock for playlist and aliases
 	q.ListLock.RLock()
 	defer q.ListLock.RUnlock()
 	q.AliasLock.RLock()
 	defer q.AliasLock.RUnlock()
 
-	// Get alias
-	alias, ok := q.Aliases[help.GetIP(addr)]
-	if !ok {
-		alias = "Anon"
-	}
-	out.UserAlias = alias
+	// Write lock for cache
+	q.CacheLock.Lock()
+	defer q.CacheLock.Unlock()
 
-	// Initialise the 2d slice of outer size equal to number of buckets
-	out.Playlist = make([][]VideoInfo, q.buckets)
+	// clear the bucket to rebuild
+	q.BucketCache = make([][]VideoInfo, q.buckets)
 
-	// Temp map of ip to bucket it should be placed in
+	// Temp map of ip to bucket it should be placed into
 	ipToBucket := map[string]int{}
 
-	// Place each video in a bucket and
 	for _, vid := range q.Playlist {
-		// Get the bucket the video should be in
+		// Get the bucket the video should be in, zero valued
 		b, _ := ipToBucket[vid.IpAddr]
 
-		// Covert Video to VideoInfo and add to bucket
-		out.Playlist[b] = append(out.Playlist[b], vid.ConvertToInfo(q.Aliases))
+		// Convert video to VideoInfo and add to bucket
+		q.BucketCache[b] = append(q.BucketCache[b], vid.ConvertToInfo(q.Aliases))
 
-		// Increment the bucket value
+		// Increment bucket for ip address
 		ipToBucket[vid.IpAddr]++
 	}
+}
 
-	// Lock nowplaying
+// Method to return PlaylistInfo from the Queue
+func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
+	// New playlist information
+	var out PlaylistInfo
+
+	// Read lock the bucket cache
+	q.CacheLock.RLock()
+	defer q.CacheLock.RUnlock()
+	// Use cache to populate the PlaylistInfo
+	out.Playlist = q.BucketCache
+
+	// Get the alias
+	out.UserAlias, _ = q.GetAlias(addr)
+
+	// Read lock NowPlaying and Aliases
 	q.NPLock.RLock()
 	defer q.NPLock.RUnlock()
-
-	// Add now playing info struct
+	q.AliasLock.RLock()
+	defer q.AliasLock.RUnlock()
+	// Get nowplaying
 	out.NowPlaying = q.NowPlaying.ConvertToInfo(q.Aliases)
 
 	return out

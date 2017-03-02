@@ -15,6 +15,8 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 	if !aliasExists {
 		http.Redirect(w, req, "/alias", http.StatusSeeOther)
 	} else {
+		w.Header().Set("Content-type", "text/html")
+
 		plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
 		homeTemplate, _ := template.ParseFiles("templates/home.html")
 		homeTemplate.Execute(w, plInfo)
@@ -35,6 +37,8 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 	} else {
+		w.Header().Set("Content-type", "text/html")
+
 		aliasTemplate, _ := template.ParseFiles("templates/alias.html")
 		aliasTemplate.Execute(w, nil)
 	}
@@ -48,6 +52,7 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 
 		if !aliasExists {
 			http.Redirect(w, req, "/alias", http.StatusSeeOther)
+			return
 		}
 
 		videoLink := req.PostFormValue("video_link")
@@ -89,6 +94,8 @@ func userRemoveHandler(w http.ResponseWriter, req *http.Request) {
 
 // Endpoint to return playlist JSON
 func playlistHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-type", "application/json")
+
 	info := Q.GetPlaylistInfo(req.RemoteAddr)
 	json.NewEncoder(w).Encode(info)
 }

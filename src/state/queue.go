@@ -4,7 +4,7 @@ import (
 	"os"
 	"log"
 	"sync"
-	"html"
+	//"html"
 	"time"
 
 	"../help"
@@ -42,6 +42,10 @@ type Queue struct {
 	NowPlaying Video
 	NPLock sync.RWMutex
 
+	// Cache to populate to PlaylistInfo structs
+	BucketCache [][]VideoInfo
+	CacheLock sync.RWMutex
+
 	timeout time.Duration
 	buckets int
 }
@@ -66,6 +70,9 @@ func (q *Queue) Init(t time.Duration, b int, debug bool) {
 	// Set timeout and max buckets
 	q.timeout = t
 	q.buckets = b
+
+	// Init cache
+	q.BucketCache = make([][]VideoInfo, q.buckets)
 }
 
 // Returns video popped from front of playlist or blankVideo
@@ -120,8 +127,8 @@ func (q *Queue) SetAlias(addr, alias string) {
 	q.AliasLock.Lock()
 	defer q.AliasLock.Unlock()
 
-	// Alias is escaped before saving to map
-	q.Aliases[ip] = html.EscapeString(alias)
+	// Templates auto-escape strings
+	q.Aliases[ip] = alias
 }
 
 func (q *Queue) CanAddVideo(addr string) bool {
@@ -162,17 +169,22 @@ func (q *Queue) DownloadAndAddVideo(addr, link string) {
 			q.Playlist = append(q.Playlist, newVideo)
 			q.ListLock.Unlock()
 		}
+		q.UpdateBucketCache()
 		return
 	}
 	
 	newId := help.GenUUID()
 	// Download video with given uuid as filename
 	log.Println("Starting download:", title)
-	vidFilePath := YTDL.GetVideo(newId, link)
-	log.Print("Download complete:", title)
+	vidFilePath, err := YTDL.GetVideo(newId, link)
+	if err {
+		log.Println("Download failed:", title)
+		return
+	}
+	log.Println("Download complete:", title)
 
 	// Escape title before saving to video struct
-	title = html.EscapeString(title)
+	// title = html.EscapeString(title)
 
 	// Create new video struct
 	newVideo := Video{newId, title, vidFilePath, help.GetIP(addr)}
@@ -180,19 +192,20 @@ func (q *Queue) DownloadAndAddVideo(addr, link string) {
 	// Double check in case another video was added while this one was D/L'ing
 	if q.CanAddVideo(addr){
 		q.ListLock.Lock()
-		defer q.ListLock.Unlock()
 		// Append to playlist
 		q.Playlist = append(q.Playlist, newVideo)
+		q.ListLock.Unlock()
 	} else {
 		// delete file
 		os.Remove(newVideo.File)
 	}
+
+	q.UpdateBucketCache()
 }
 
 // This removes video and also bubbles the users video from the lower buckets upwards
 func (q *Queue) AdminRemoveVideo(remVidId string) {
 	q.ListLock.Lock()
-	defer q.ListLock.Unlock()
 
 	foundIP := ""
 	prevIndex := 0
@@ -218,12 +231,14 @@ func (q *Queue) AdminRemoveVideo(remVidId string) {
 		// prevIndex is now the target video in the lowest position so delete it
 		q.Playlist = append(q.Playlist[:prevIndex], q.Playlist[prevIndex+1:]...)
 	}
+
+	q.ListLock.Unlock()
+	q.UpdateBucketCache()
 }
 
 // Same as above function but requires both video id and video ip to sucessfully remove a video
 func (q *Queue) UserRemoveVideo(remVidId, remUserIp string) {
 	q.ListLock.Lock()
-	defer q.ListLock.Unlock()
 
 	foundIP := ""
 	prevIndex := 0
@@ -249,4 +264,7 @@ func (q *Queue) UserRemoveVideo(remVidId, remUserIp string) {
 		// prevIndex is now the target video in the lowest position so delete it
 		q.Playlist = append(q.Playlist[:prevIndex], q.Playlist[prevIndex+1:]...)
 	}
+
+	q.ListLock.Unlock()
+	q.UpdateBucketCache()
 }

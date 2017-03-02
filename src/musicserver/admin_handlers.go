@@ -13,6 +13,8 @@ func adminHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
 	}
 
+	w.Header().Set("Content-type", "text/html")
+
 	plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
 	adminTemplate, _ := template.ParseFiles("templates/admin.html")
 	adminTemplate.Execute(w, plInfo)
@@ -31,6 +33,8 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 		}
 
 	} else {
+		w.Header().Set("Content-type", "text/html")
+
 		loginTemplate, _ := template.ParseFiles("templates/admin_login.html")
 		loginTemplate.Execute(w, nil)
 	}
@@ -38,12 +42,13 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 
 func adminLogoutHandler(w http.ResponseWriter, req *http.Request) {
 	A.EndSession(req.RemoteAddr)
-	http.Redirect(w, req, "/home", http.StatusSeeOther)
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 func adminKillHandler(w http.ResponseWriter, req *http.Request) {
 	if !A.ValidSession(req.RemoteAddr) {
 		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
+		return
 	}
 	// Use killall to kill music players
 	killPlayer := exec.Command("killall", "mpv")
@@ -62,6 +67,7 @@ func adminKillHandler(w http.ResponseWriter, req *http.Request) {
 func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
 	if !A.ValidSession(req.RemoteAddr) {
 		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
+		return
 	}
 
 	// Get video id from post data

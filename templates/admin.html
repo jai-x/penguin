@@ -31,19 +31,20 @@
         <section class="row margin-top-2x">
           <div class="small-12 columns">
 
-            <h3>
-              Now playing:
-
-              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-              {{if .NowPlaying.ID}}
-                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-                <form action="/admin/kill">
-                  <input type="submit" value="Stop current video" class="button expanded alert">
-                </form>
-              {{else}}
-                Nothing Playing
-              {{end}}
-            </h3>
+            <h5>Now playing:</h5>
+            <h5>
+              <span id="nowplaying">
+                {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+                {{if .NowPlaying.ID}}
+                  {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+                  <form action="/admin/kill">
+                    <input type="submit" value="Stop current video" class="button expanded alert">
+                  </form>
+                {{else}}
+                  Nothing Playing
+                {{end}}
+              </span>
+            </h5>
 
           </div>
         </section>
@@ -54,8 +55,8 @@
           <div class="small-12 columns">
 
             {{/*For each bucket in playlist*/}}
-            {{range .Playlist}}
-              <div class="callout">
+            {{range $bucket, $var := .Playlist}}
+              <div class="callout" id="bucket{{$bucket}}">
                   {{/*For each item in bucket*/}}
                   {{range .}}
                     <div class="row">
@@ -88,6 +89,9 @@
 
       </div>
     </div>
+
+    <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/admin.js"></script>
 
   </body>
 </html>

@@ -18,6 +18,8 @@ func (q *Queue) VideoPlayerService() {
 		q.NowPlaying = currentVid
 		q.NPLock.Unlock()
 
+		q.UpdateBucketCache()
+
 		emptyVid := Video{}
 
 		if currentVid != emptyVid {
