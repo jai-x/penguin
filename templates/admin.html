@@ -57,30 +57,29 @@
             {{/*For each bucket in playlist*/}}
             {{range $bucket, $var := .Playlist}}
               <div class="callout" id="bucket{{$bucket}}">
-                  {{/*For each item in bucket*/}}
-                  {{range .}}
-                    <div class="row">
-                      <div class="small-7 columns">
-                        {{.Title}}
-                      </div>
-
-                      <div class="small-1 columns">
-                        {{.IpAddr}}
-                      </div>
-
-                      <div class="small-2 columns">
-                          <form action="/admin/remove" method="POST">
-                            <input type="hidden" name="video_id" value="{{.ID}}">
-                            <input type="submit" value="Remove" class="alert button small">
-                          </form>
-                      </div>
-
-                      <div class="small-2 columns">
-                        {{.Uploader}}
-                      </div>
+                {{/*For each item in bucket*/}}
+                {{range .}}
+                  <div class="row">
+                    <div class="small-7 columns">
+                      {{.Title}}
                     </div>
-                    <hr>
-                  {{end}}
+
+                    <div class="small-1 columns">
+                      {{.IpAddr}}
+                    </div>
+
+                    <div class="small-2 columns">
+                      <form action="/admin/remove" method="POST">
+                        <input type="hidden" name="video_id" value="{{.ID}}">
+                        <input type="submit" value="Remove" class="alert button tiny remove-button">
+                      </form>
+                    </div>
+
+                    <div class="small-2 columns">
+                      {{.Uploader}}
+                    </div>
+                  </div>
+                {{end}}
               </div>
             {{end}}
 

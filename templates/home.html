@@ -3,6 +3,7 @@
   <head>
     <title>UWCS Music Server</title>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/custom.css">
   </head>
   <body>
 
@@ -39,16 +40,27 @@
 
             <h5>Add a video</h5>
 
-            <form action="/queue" method="POST">
+            <form action="/queue" method="POST" id="queue">
               <div class="input-group">
                 <span class="input-group-label">Video link</span>
-                <input type="text" class="input-group-field" name="video_link" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
+                <input type="url" class="input-group-field" name="video_link" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required id="queueinput">
                 <div class="input-group-button">
-                  <input type="submit" value="Go" class="button">
+                  <input type="submit" value="Go" class="button" id="queuebutton">
                 </div>
               </div>
             </form>
 
+          </div>
+        </section>
+
+        <section class="row">
+          <div class="small-12 columns" id="downloading">
+            {{if .Downloading}}
+              <h5>Downloading...</h5>
+            {{end}}
+            {{range .Downloading}}
+              <p>{{.}}</p>
+            {{end}}          
           </div>
         </section>
 
@@ -83,7 +95,7 @@
                         {{if eq .Uploader $alias}}
                           <form action="/remove" method="POST">
                             <input type="hidden" name="video_id" value="{{.ID}}">
-                            <input type="submit" value="Remove" class="alert button small">
+                            <input type="submit" value="Remove" class="alert button tiny remove-button">
                           </form>
                         {{end}}
                       </div>
@@ -103,6 +115,7 @@
     </div>
 
     <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/notify.min.js"></script>
     <script type="text/javascript" src="/static/js/user.js"></script>
 
   </body>

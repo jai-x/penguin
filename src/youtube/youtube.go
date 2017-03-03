@@ -41,7 +41,7 @@ func (ytdl *Downloader) GetTitle(link string) (string, bool) {
 	}
 }
 
-// Downloads video and returns path to video file
+// Downloads video and returns path to video file, or error
 func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
 	// Template will cause youtube-dl to give the video the uuid as filename
 	// Will also download to specific folder
@@ -54,9 +54,9 @@ func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
 	vidPath, _ := filepath.Glob((ytdl.downloadFolder+"/"+uuid+".*"))
 
 	// Return first instance of file search
-	if len(vidPath) > 1 {
-		return vidPath[0], true
+	if len(vidPath) > 0 {
+		return vidPath[0], false
 	} else {
-		return "", false
+		return "", true
 	}
 }

@@ -30,6 +30,7 @@ func (q *Queue) VideoPlayerService() {
 			// Explicit unlocks to prevent lock during entire video
 
 			log.Println("Playing Video:", currentVid.Title)
+			log.Println("Video file:", currentVid.File)
 
 			// Since Go is a bit weird here's some extra comments for how timeout is done
 			// Make a message channel, size of one, and only transport errors
@@ -65,7 +66,7 @@ func (q *Queue) VideoPlayerService() {
 			os.Remove(currentVid.File)
 
 		} else {
-			log.Println("(/'-')/  No Videos in Playlist \\('-'\\)")
+			//log.Println("(/'-')/  No Videos in Playlist \\('-'\\)")
 			time.Sleep(1 * time.Second)
 		}
 	}

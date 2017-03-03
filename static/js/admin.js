@@ -7,7 +7,7 @@ $(document).ready(function() {
     update_np();
     update_pl();
 
-  }, 2000);
+  }, 1000);
 });
 
 function update_np() {
@@ -54,15 +54,17 @@ function format_video(vid) {
   out += `<div class="small-7 columns">`;
   out += vid.Title;
   out += "</div>";
+  // Uploader ip
+  out += `<div class="small-1 columns">` + vid.IpAddr + `</div>`;
   // Remove button as admin
   out += `<div class="small-2 columns">`;
   out += `<form action="/admin/remove" method="POST">`;
-  out += `<input type="hidden" name="video_id" value="" + vid.ID + "">`;
-  out += `<input type="submit" value="Remove" class="alert button small">`;
+  out += `<input type="hidden" name="video_id" value="` + vid.ID + `>`;
+  out += `<input type="submit" value="Remove" class="alert button tiny remove-button">`;
   out += `</form>`;
   out += `</div>`
   // Alias of uploader
-  out += `<div class="small-3 columns">` + escapeHtml(vid.Uploader) + `</div>`;
+  out += `<div class="small-2 columns">` + escapeHtml(vid.Uploader) + `</div>`;
   out += `</div>`;
   return out;
 }

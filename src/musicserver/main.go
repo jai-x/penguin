@@ -42,17 +42,21 @@ func Run(debug bool) {
 	http.HandleFunc("/admin/kill", adminKillHandler)
 	http.HandleFunc("/admin/remove", adminRemoveHandler)
 	// Regular url endpoints
-	http.HandleFunc("/playlist", playlistHandler)
 	http.HandleFunc("/alias", aliasHandler)
 	http.HandleFunc("/queue", queueHandler)
 	http.HandleFunc("/remove", userRemoveHandler)
 	http.HandleFunc("/", homeHandler)
+	// AJAX Endpoints
+	http.HandleFunc("/playlist", playlistHandler)
+	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
 	// Static file server
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	if !debug {
 		// Start video player service in a separate goroutine
 		go Q.VideoPlayerService()
+	} else {
+		log.Println("DEBUG: VideoPlayerService suspended")
 	}
 
 	// Run the server

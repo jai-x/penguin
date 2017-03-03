@@ -16,16 +16,16 @@ type PlaylistInfo struct {
 	Playlist [][]VideoInfo
 	NowPlaying VideoInfo
 	UserAlias string
+	Downloading []string
 }
 
 // Method to convert a Video struct to VideoInfo struct, given aliasmap
 func (v *Video) ConvertToInfo(aliasMap map[string]string) VideoInfo {
 	name, exists := aliasMap[v.IpAddr]
-	if exists {
-		return VideoInfo{v.Title, v.IpAddr, name, v.ID}
-	} else {
-		return VideoInfo{v.Title, v.IpAddr, "Anon", v.ID}
+	if !exists {
+		name = "Anon"
 	}
+	return VideoInfo{v.Title, v.IpAddr, name, v.ID}
 }
 
 func (q *Queue) UpdateBucketCache() {
@@ -67,6 +67,7 @@ func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
 	defer q.CacheLock.RUnlock()
 	// Use cache to populate the PlaylistInfo
 	out.Playlist = q.BucketCache
+	out.Downloading = q.Downloading
 
 	// Get the alias
 	out.UserAlias, _ = q.GetAlias(addr)

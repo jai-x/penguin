@@ -5,7 +5,6 @@ import (
 	"strings"
 	"net/http"
 	"html/template"
-	"encoding/json"
 )
 
 // Return homepage
@@ -70,7 +69,7 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// Started in new go routine to prevent response waiting
+		// Start video downloader in new goroutine so 
 		go Q.DownloadAndAddVideo(req.RemoteAddr, videoLink)
 
 		vidAddedTempl, _ := template.ParseFiles("templates/added.html")
@@ -90,12 +89,4 @@ func userRemoveHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	http.Redirect(w, req, "/", http.StatusSeeOther)
-}
-
-// Endpoint to return playlist JSON
-func playlistHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
-
-	info := Q.GetPlaylistInfo(req.RemoteAddr)
-	json.NewEncoder(w).Encode(info)
 }

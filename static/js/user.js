@@ -1,14 +1,43 @@
 var current = new Object();
 
 $(document).ready(function() {
-  console.log("Autoupdate page started...");
+  link_form_override();
+  // Loop
   setInterval(function() {
     get_list();
+    update_dl();
     update_np();
     update_pl();
 
-  }, 2000);
+  }, 1000);
 });
+
+// Ajax override of form
+function link_form_override() {
+  $("#queue").submit(function(event) {
+    var formData = {
+      "video_link": $("input[name=video_link]").val(),
+      "ajax": true
+    }
+    // Set form button to Submitting...
+    $("#queuebutton").val("Submitting...");
+    // The ajax request
+    $.ajax({
+      type: "POST",
+      url: "/ajax/queue",
+      data: formData,
+    })
+    // When done change button back and clear form
+    .done(function(data) {
+      $("#queuebutton").val("Go");
+      $("#queueinput").val("");
+      // Notify user from response data
+      $("#queue").notify(data.Message, data.Type);
+    });
+    // Stop the normal button behaviour
+    event.preventDefault();
+  });
+}
 
 function update_np() {
   // Verify nowPlaying exists
@@ -46,6 +75,18 @@ function update_pl() {
   }
 }
 
+function update_dl() {
+  var downloadingHTML = "";
+  // Verify downloading exists
+  if (current.downloading && current.downloading.length > 0) {
+    downloadingHTML += "<h5>Downloading...</h5>";
+    for (var i = 0; i < current.downloading.length; i++) {
+      downloadingHTML += "<p>" + current.downloading[i] + "</p>";
+    }
+  }
+  $("#downloading").html(downloadingHTML);
+}
+
 function format_video(vid) {
   var out = `<div class="row">`;
     // Title
@@ -57,8 +98,8 @@ function format_video(vid) {
     // Button if user is uploader
     if (vid.Uploader == current.userAlias) {
       out += `<form action="/remove" method="POST">`;
-      out += `<input type="hidden" name="video_id" value="" + vid.ID + "">`;
-      out += `<input type="submit" value="Remove" class="alert button small">`;
+      out += `<input type="hidden" name="video_id" value="` + vid.ID + `">`;
+      out += `<input type="submit" value="Remove" class="alert button tiny remove-button">`;
       out += `</form>`;
     }
     out += `</div>`
@@ -73,6 +114,7 @@ function get_list() {
     current.nowPlaying = result.NowPlaying;
     current.playlist = result.Playlist;
     current.userAlias = result.UserAlias;
+    current.downloading = result.Downloading;
   });
 
   res.fail(function() {
