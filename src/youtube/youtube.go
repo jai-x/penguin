@@ -4,8 +4,9 @@ package youtube
 
 import (
 	"log"
-	"strings"
+	"os"
 	"os/exec"
+	"strings"
 	"path/filepath"
 
 	"../config"
@@ -19,6 +20,29 @@ type Downloader struct {
 func (ytdl *Downloader) Init() {
 	ytdl.executable = config.Config.YTDLBin
 	ytdl.downloadFolder = config.Config.YTDLFolder
+
+	if !ytdl.checkFiles() {
+		os.Mkdir(ytdl.downloadFolder, 0755)
+		if !ytdl.checkFiles() {
+			log.Println("Error with folder creation:", ytdl.downloadFolder)
+			os.Exit(1)
+		}
+	}
+}
+
+func (ytdl *Downloader) checkFiles() bool {
+	if _, err := os.Stat(ytdl.executable); os.IsNotExist(err) {
+		log.Println("Cannot find youtube-dl executable", ytdl.executable)
+		os.Exit(1)
+	}
+
+	if _, err := os.Stat(ytdl.downloadFolder); os.IsNotExist(err) {
+		log.Println("youtube-dl download folder not found:", ytdl.downloadFolder)
+		return false
+	} else {
+		log.Println("youtube-dl download exists!")
+		return true
+	}
 }
 
 // Updates the binary

@@ -13,12 +13,11 @@ var (
 
 type Configuration struct {
 	AdminPass string
-
 	VideoTimeout int
 	MaxBuckets int
-
 	YTDLFolder string
 	YTDLBin string
+	Port int
 }
 
 func Init(configPath string) {
@@ -36,8 +35,6 @@ func Init(configPath string) {
 	}
 
 	log.Println("Config file read!")
-	log.Println(Config)
-	os.Exit(0)
 }
 
 func End() {

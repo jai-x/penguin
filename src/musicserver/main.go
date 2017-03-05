@@ -6,6 +6,7 @@ package musicserver
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"../state"
 	"../admin"
@@ -15,6 +16,7 @@ import (
 var (
 	Q state.ProcessQueue
 	A admin.AdminSessions
+	port string
 )
 
 func Init(configPath string) {
@@ -22,6 +24,8 @@ func Init(configPath string) {
 
 	Q.Init()
 	A.Init()
+
+	port = ":" + strconv.Itoa(config.Config.Port)
 
 	config.End()
 }
@@ -53,6 +57,6 @@ func Run() {
 
 
 	// Run the server
-	log.Println("Running music server on port 80")
-	log.Fatal(http.ListenAndServe(":80", nil))
+	log.Println("Running music server on port", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }
