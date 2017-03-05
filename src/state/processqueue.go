@@ -1,7 +1,6 @@
 package state
 
 import (
-	"os"
 	"log"
 	"sync"
 	"time"
@@ -22,15 +21,14 @@ type Video struct {
 	Title string
 	File string
 	IpAddr string
+	Ready bool
 }
 
 // Main data structure, holds entire state of the video system
-type Queue struct {
-	// Video slice as the playlist
+type ProcessQueue struct {
+	// List lock mutex for both these data structures
 	Playlist []Video
-	// Map of ip address to video that have been played
 	JustPlayed map[string]Video
-	// Mutex for both of the above structures
 	ListLock sync.RWMutex
 
 	// Map of ip addresses to aliases
@@ -43,7 +41,6 @@ type Queue struct {
 
 	// Cache to populate to PlaylistInfo structs
 	BucketCache [][]VideoInfo
-	Downloading []string
 	CacheLock sync.RWMutex
 
 	timeout time.Duration
@@ -51,7 +48,7 @@ type Queue struct {
 }
 
 // Struct initialiser
-func (q *Queue) Init(t time.Duration, b int, debug bool) {
+func (q *ProcessQueue) Init(t time.Duration, b int, debug bool) {
 	debugMode = debug
 
 	// Init empty slices
@@ -75,7 +72,7 @@ func (q *Queue) Init(t time.Duration, b int, debug bool) {
 	q.BucketCache = make([][]VideoInfo, q.buckets)
 }
 
-func (q *Queue) GetAlias(addr string) (string, bool) {
+func (q *ProcessQueue) GetAlias(addr string) (string, bool) {
 	ip := help.GetIP(addr)
 
 	q.AliasLock.RLock()
@@ -85,7 +82,7 @@ func (q *Queue) GetAlias(addr string) (string, bool) {
 	return alias, exists
 }
 
-func (q *Queue) SetAlias(addr, alias string) {
+func (q *ProcessQueue) SetAlias(addr, alias string) {
 	ip := help.GetIP(addr)
 
 	q.AliasLock.Lock()
@@ -96,17 +93,17 @@ func (q *Queue) SetAlias(addr, alias string) {
 	q.UpdateBucketCache()
 }
 
-func (q *Queue) CanAddVideo(addr string) bool {
+func (q *ProcessQueue) CanAddVideo(addr string) bool {
 	ip := help.GetIP(addr)
 
 	q.ListLock.RLock()
 	defer q.ListLock.RUnlock()
 
-	ipQueue := 0
+	ipProcessQueue := 0
 	for _, vid := range q.Playlist {
 		if vid.IpAddr == ip {
-			ipQueue++
-			if ipQueue >= q.buckets {
+			ipProcessQueue++
+			if ipProcessQueue >= q.buckets {
 				return false
 			}
 		}
@@ -114,33 +111,20 @@ func (q *Queue) CanAddVideo(addr string) bool {
 	return true
 }
 
-func (q *Queue) AddToDLing(title string) {
-	q.CacheLock.Lock()
-	q.Downloading = append(q.Downloading, title)
-	q.CacheLock.Unlock()
-}
-
-
-func (q *Queue) RemoveFromDLing(title string) {
-	q.CacheLock.Lock()
-	for index, dl := range q.Downloading {
-		if dl == title {
-			q.Downloading = append(q.Downloading[:index], q.Downloading[index+1:]...)
-			break
-		}
-	}
-	q.CacheLock.Unlock()
-}
-
 // Returns video popped from front of playlist or blankVideo
-func (q *Queue) GetNextVideo() Video {
+func (q *ProcessQueue) GetNextVideo() Video {
 	q.ListLock.Lock()
 
 	// #### DEBUG CODE ####
 	if len(q.Playlist) < 1 || debugMode {
 		// return empty video if list is empty
 		q.ListLock.Unlock()
-		//log.Println("Playlist is empty")
+		return Video{}
+	}
+
+	if !q.Playlist[0].Ready {
+		// Top video is not ready so return empty video
+		q.ListLock.Unlock()
 		return Video{}
 	}
 
@@ -165,72 +149,74 @@ func (q *Queue) GetNextVideo() Video {
 	return q.GetNextVideo()
 }
 
-// Download video and adds new video struct to playlist
-func (q *Queue) DownloadAndAddVideo(addr, link string) {
+func (q *ProcessQueue) QuickAddVideo(addr, link string) {
+	newId := help.GenUUID()
+	ip := help.GetIP(addr)
+
+	newVideo := Video{newId,"", "", ip, false}
+	q.ListLock.Lock()
+	q.Playlist = append(q.Playlist, newVideo)
+	q.ListLock.Unlock()
+
+	q.UpdateBucketCache()
+
+	go q.DownloadVideo(newId, link)
+}
+
+// Download video and updates video struct playlist
+func (q *ProcessQueue) DownloadVideo(vidId, link string) {
 	log.Println("Fetching title:", link)
 	title, ok := YTDL.GetTitle(link)
 	if !ok {
-		log.Println("Failed download of video", link, "\nFrom address:", addr)
+		log.Println("Failed stat video title of link:", link)
+		q.AdminRemoveVideo(vidId)
 		return
 	}
 
-	newId := help.GenUUID()
-	// #### DEBUG CODE ####
-	// Add non file video struct to list and return
-	if debugMode {
-		newVideo := Video{newId, title, "", help.GetIP(addr)}
-		// double check
-		if q.CanAddVideo(addr) {
-			q.ListLock.Lock()
-			// Append to playlist
-			q.Playlist = append(q.Playlist, newVideo)
-			q.ListLock.Unlock()
-			log.Println("DEBUG: Added video", title)
-		} else {
-			log.Println("DEBUG: Cannot add video, queue full", title)
+	// Add title to video struct in playlist and continue downloading
+	q.ListLock.Lock()
+	for i, vid := range q.Playlist {
+		if vidId == vid.ID {
+			log.Println("Video found in list, adding title:", title)
+			q.Playlist[i].Title = title
+			if debugMode { q.Playlist[i].Ready = true }
+			break
 		}
+	}
+	q.ListLock.Unlock()
+	q.UpdateBucketCache()
 
-		log.Println("Updating bucket cache")
-		q.UpdateBucketCache()
+	// #### DEBUG ####
+	if debugMode {
+		log.Println("DEBUG: Skipping file download:", title)
 		return
 	}
-
-	log.Println("Starting download of new video:", title)
-	// Add to downloading list
-	q.AddToDLing(title)
 
 	// Download video with given uuid as filename
-	vidFilePath, err := YTDL.GetVideo(newId, link)
+	vidFilePath, err := YTDL.GetVideo(vidId, link)
 	if err {
 		log.Println("Download failed:", title)
-		q.RemoveFromDLing(title)
+		q.AdminRemoveVideo(vidId)
 		return
 	}
-	log.Println("Download complete:", title)
 
-	// Remove from downloading list
-	q.RemoveFromDLing(title)
-
-	// Doublecheck in case another video was added while this video was D/L'ing
-	if q.CanAddVideo(addr) {
-		// Add new video to playlist
-		q.ListLock.Lock()
-		newVideo := Video{newId, title, vidFilePath, help.GetIP(addr)}
-		q.Playlist = append(q.Playlist, newVideo)
-		q.ListLock.Unlock()
-		log.Println("Video added:", title)
-	} else {
-		// remove unused video
-		os.Remove(vidFilePath)
-		log.Println("Cannot add video, too many in queue:", title)
+	// Add new video to playlist
+	q.ListLock.Lock()
+	for i, vid := range q.Playlist {
+		if vid.ID == vidId {
+			q.Playlist[i].File = vidFilePath
+			q.Playlist[i].Ready = true
+			break
+		}
 	}
+	q.ListLock.Unlock()
+	log.Println("Download completed:", title)
 
-	log.Println("Updating bucket cache")
 	q.UpdateBucketCache()
 }
 
 // This removes video and also bubbles the users video from the lower buckets upwards
-func (q *Queue) AdminRemoveVideo(remVidId string) {
+func (q *ProcessQueue) AdminRemoveVideo(remVidId string) {
 	q.ListLock.Lock()
 
 	foundIP := ""
@@ -263,7 +249,7 @@ func (q *Queue) AdminRemoveVideo(remVidId string) {
 }
 
 // Same as above function but requires both video id and video ip to sucessfully remove a video
-func (q *Queue) UserRemoveVideo(remVidId, remUserIp string) {
+func (q *ProcessQueue) UserRemoveVideo(remVidId, remUserIp string) {
 	q.ListLock.Lock()
 
 	foundIP := ""
@@ -293,4 +279,11 @@ func (q *Queue) UserRemoveVideo(remVidId, remUserIp string) {
 
 	q.ListLock.Unlock()
 	q.UpdateBucketCache()
+}
+
+func (q *ProcessQueue) getAllAliases() map[string]string {
+	q.AliasLock.RLock()
+	out := q.Aliases
+	q.AliasLock.RUnlock()
+	return out
 }

@@ -1,0 +1,39 @@
+{{$alias := .UserAlias}}
+<h5>Now playing:</h5>
+<h5>
+  {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+  {{if .NowPlaying.ID}}
+    {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+  {{else}}
+    Nothing Playing
+  {{end}}
+</h5>
+
+{{/*For each bucket in playlist*/}}
+{{range .Playlist}}
+  <div class="callout">
+    {{/*For each item in bucket*/}}
+    {{range .}}
+      <div class="row">
+        <div class="small-7 columns">
+          {{if .Title}}{{.Title}}{{else}}New video...{{end}}
+        </div>
+
+        <div class="small-2 columns">
+          {{if not .Ready}}
+            Downloading...
+          {{else if eq .Uploader $alias}}
+            <form action="/remove" method="POST">
+              <input type="hidden" name="video_id" value="{{.ID}}">
+              <input type="submit" value="Remove" class="alert button tiny remove-button">
+            </form>
+          {{end}}
+        </div>
+
+        <div class="small-3 columns">
+          {{.Uploader}}
+        </div>
+      </div>
+    {{end}}
+  </div>
+{{end}}

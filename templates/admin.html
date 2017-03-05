@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>Music Server Admin Page</title>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
   </head>
@@ -29,39 +30,31 @@
         </section>
 
         <section class="row margin-top-2x">
-          <div class="small-12 columns">
+          <div class="small-12 columns" id="main">
 
             <h5>Now playing:</h5>
             <h5>
-              <span id="nowplaying">
-                {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-                {{if .NowPlaying.ID}}
-                  {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-                  <form action="/admin/kill">
-                    <input type="submit" value="Stop current video" class="button expanded alert">
-                  </form>
-                {{else}}
-                  Nothing Playing
-                {{end}}
-              </span>
+              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+              {{if .NowPlaying.ID}}
+                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+                <form action="/admin/kill">
+                  <input type="submit" value="Stop current video" class="button expanded alert">
+                </form>
+              {{else}}
+                Nothing Playing
+              {{end}}
             </h5>
 
-          </div>
-        </section>
-
-        <hr>
-
-        <section class="row">
-          <div class="small-12 columns">
+            <hr>
 
             {{/*For each bucket in playlist*/}}
-            {{range $bucket, $var := .Playlist}}
-              <div class="callout" id="bucket{{$bucket}}">
+            {{range .Playlist}}
+              <div class="callout">
                 {{/*For each item in bucket*/}}
                 {{range .}}
                   <div class="row">
                     <div class="small-7 columns">
-                      {{.Title}}
+                      {{if .Title}}{{.Title}}{{else}}New video...{{end}}
                     </div>
 
                     <div class="small-1 columns">
@@ -69,10 +62,14 @@
                     </div>
 
                     <div class="small-2 columns">
+                      {{if not .Ready}}
+                      Downloading...
+                      {{else}}
                       <form action="/admin/remove" method="POST">
                         <input type="hidden" name="video_id" value="{{.ID}}">
                         <input type="submit" value="Remove" class="alert button tiny remove-button">
                       </form>
+                      {{end}}
                     </div>
 
                     <div class="small-2 columns">

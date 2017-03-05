@@ -15,7 +15,6 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/alias", http.StatusSeeOther)
 	} else {
 		w.Header().Set("Content-type", "text/html")
-
 		plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
 		homeTemplate, _ := template.ParseFiles("templates/home.html")
 		homeTemplate.Execute(w, plInfo)
@@ -43,7 +42,7 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Endpoint for queuing videos via link
+// Endpoint for queuing videos via webform
 func queueHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 
@@ -69,8 +68,8 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// Start video downloader in new goroutine so 
-		go Q.DownloadAndAddVideo(req.RemoteAddr, videoLink)
+		// Add video
+		Q.QuickAddVideo(req.RemoteAddr, videoLink)
 
 		vidAddedTempl, _ := template.ParseFiles("templates/added.html")
 		vidAddedTempl.Execute(w, nil)

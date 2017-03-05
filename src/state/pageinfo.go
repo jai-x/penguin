@@ -1,6 +1,6 @@
 package state
 
-// These data structures are derived from information in Queue
+// These data structures are derived from information in ProcessQueue
 // These are used for user facing data requests
 
 // Video struct with only user relevant fields
@@ -9,6 +9,7 @@ type VideoInfo struct {
 	IpAddr string
 	Uploader string
 	ID string
+	Ready bool
 }
 
 // Type to return to client
@@ -16,7 +17,6 @@ type PlaylistInfo struct {
 	Playlist [][]VideoInfo
 	NowPlaying VideoInfo
 	UserAlias string
-	Downloading []string
 }
 
 // Method to convert a Video struct to VideoInfo struct, given aliasmap
@@ -25,10 +25,10 @@ func (v *Video) ConvertToInfo(aliasMap map[string]string) VideoInfo {
 	if !exists {
 		name = "Anon"
 	}
-	return VideoInfo{v.Title, v.IpAddr, name, v.ID}
+	return VideoInfo{v.Title, v.IpAddr, name, v.ID, v.Ready}
 }
 
-func (q *Queue) UpdateBucketCache() {
+func (q *ProcessQueue) UpdateBucketCache() {
 	// Read lock for playlist and aliases
 	q.ListLock.RLock()
 	defer q.ListLock.RUnlock()
@@ -57,8 +57,8 @@ func (q *Queue) UpdateBucketCache() {
 	}
 }
 
-// Method to return PlaylistInfo from the Queue
-func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
+// Method to return PlaylistInfo from the ProcessQueue
+func (q *ProcessQueue) GetPlaylistInfo(addr string) PlaylistInfo {
 	// New playlist information
 	var out PlaylistInfo
 
@@ -67,10 +67,13 @@ func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
 	defer q.CacheLock.RUnlock()
 	// Use cache to populate the PlaylistInfo
 	out.Playlist = q.BucketCache
-	out.Downloading = q.Downloading
 
 	// Get the alias
-	out.UserAlias, _ = q.GetAlias(addr)
+	name, exists := q.GetAlias(addr)
+	out.UserAlias = name
+	if !exists {
+		out.UserAlias = "Anon"
+	}
 
 	// Read lock NowPlaying and Aliases
 	q.NPLock.RLock()
@@ -81,4 +84,10 @@ func (q *Queue) GetPlaylistInfo(addr string) PlaylistInfo {
 	out.NowPlaying = q.NowPlaying.ConvertToInfo(q.Aliases)
 
 	return out
+}
+
+func (q *ProcessQueue) GetRawPlaylist() []Video {
+	q.ListLock.RLock()
+	defer q.ListLock.RUnlock()
+	return q.Playlist
 }

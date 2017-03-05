@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func (q *Queue) VideoPlayerService() {
+func (q *ProcessQueue) VideoPlayerService() {
 	log.Println("Video player service start...")
 
 	for {

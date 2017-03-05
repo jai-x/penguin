@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"log"
+	"strings"
 	"os/exec"
 	"path/filepath"
 )
@@ -36,7 +37,7 @@ func (ytdl *Downloader) GetTitle(link string) (string, bool) {
 		log.Println(err)
 		return "", false
 	} else {
-		title := string(output)
+		title := strings.TrimSpace(string(output))
 		return title, true
 	}
 }

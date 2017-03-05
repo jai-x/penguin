@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>UWCS Music Server</title>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
     <link rel="stylesheet" type="text/css" href="/static/css/custom.css">
@@ -53,58 +54,47 @@
           </div>
         </section>
 
-        <section class="row">
-          <div class="small-12 columns" id="downloading">
-            {{if .Downloading}}
-              <h5>Downloading...</h5>
-            {{end}}
-            {{range .Downloading}}
-              <p>{{.}}</p>
-            {{end}}          
-          </div>
-        </section>
-
         <hr>
 
         <section class="row">
-          <div class="small-12 columns">
+          <div class="small-12 columns" id="main">
 
             <h5>Now playing:</h5>
             <h5>
-              <span id="nowplaying">
-                {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-                {{if .NowPlaying.ID}}
-                  {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-                {{else}}
-                  Nothing Playing
-                {{end}}
-              </span>
+              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
+              {{if .NowPlaying.ID}}
+                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
+              {{else}}
+                Nothing Playing
+              {{end}}
             </h5>
 
             {{/*For each bucket in playlist*/}}
-            {{range $bucket, $var := .Playlist}}
-              <div class="callout" id="bucket{{$bucket}}">
-                  {{/*For each item in bucket*/}}
-                  {{range .}}
-                    <div class="row">
-                      <div class="small-7 columns">
-                        {{.Title}}
-                      </div>
-
-                      <div class="small-2 columns">
-                        {{if eq .Uploader $alias}}
-                          <form action="/remove" method="POST">
-                            <input type="hidden" name="video_id" value="{{.ID}}">
-                            <input type="submit" value="Remove" class="alert button tiny remove-button">
-                          </form>
-                        {{end}}
-                      </div>
-
-                      <div class="small-3 columns">
-                        {{.Uploader}}
-                      </div>
+            {{range .Playlist}}
+              <div class="callout">
+                {{/*For each item in bucket*/}}
+                {{range .}}
+                  <div class="row">
+                    <div class="small-7 columns">
+                      {{if .Title}}{{.Title}}{{else}}New video...{{end}}
                     </div>
-                  {{end}}
+
+                    <div class="small-2 columns">
+                      {{if not .Ready}}
+                        Downloading...
+                      {{else if eq .Uploader $alias}}
+                        <form action="/remove" method="POST">
+                          <input type="hidden" name="video_id" value="{{.ID}}">
+                          <input type="submit" value="Remove" class="alert button tiny remove-button">
+                        </form>
+                      {{end}}
+                    </div>
+
+                    <div class="small-3 columns">
+                      {{.Uploader}}
+                    </div>
+                  </div>
+                {{end}}
               </div>
             {{end}}
 

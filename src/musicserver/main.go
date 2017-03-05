@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Q state.Queue
+	Q state.ProcessQueue
 	A admin.AdminSessions
 
 	debug bool
@@ -47,8 +47,9 @@ func Run(debug bool) {
 	http.HandleFunc("/remove", userRemoveHandler)
 	http.HandleFunc("/", homeHandler)
 	// AJAX Endpoints
-	http.HandleFunc("/playlist", playlistHandler)
 	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
+	http.HandleFunc("/ajax/playlist", ajaxPlaylistHandler)
+	http.HandleFunc("/ajax/adminplaylist", ajaxAdminPlaylistHandler)
 	// Static file server
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
@@ -56,10 +57,16 @@ func Run(debug bool) {
 		// Start video player service in a separate goroutine
 		go Q.VideoPlayerService()
 	} else {
+		// Debug endpoints 
+		http.HandleFunc("/playlist", playlistHandler)
+		log.Println("DEBUG: Additional endpoints: /playlist")
+		http.HandleFunc("/rawplaylist", rawPlaylistHandler)
+		log.Println("DEBUG: Additional endpoint: /rawplaylist")
+
 		log.Println("DEBUG: VideoPlayerService suspended")
 	}
 
 	// Run the server
-	log.Println("Running music server on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Running music server on port 80")
+	log.Fatal(http.ListenAndServe(":80", nil))
 }

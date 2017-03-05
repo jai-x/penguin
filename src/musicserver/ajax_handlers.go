@@ -2,6 +2,7 @@ package musicserver
 
 import (
 	"strings"
+	"html/template"
 	"encoding/json"
 	"net/http"
 )
@@ -48,7 +49,7 @@ func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// Start video downloader in new goroutine so 
-		go Q.DownloadAndAddVideo(req.RemoteAddr, videoLink)
+		Q.QuickAddVideo(req.RemoteAddr, videoLink)
 
 		out["Message"] = "Video added"
 		out["Type"] = "success"
@@ -58,4 +59,23 @@ func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 		out["Type"] = "error"
 		json.NewEncoder(w).Encode(out)
 	}
+}
+
+func ajaxPlaylistHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-type", "text/html")
+	plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
+	templ, _ := template.ParseFiles("templates/playlist.html")
+	templ.Execute(w, plInfo)
+}
+
+func ajaxAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-type", "text/html")
+	plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
+	templ, _ := template.ParseFiles("templates/admin_playlist.html")
+	templ.Execute(w, plInfo)
+}
+
+func rawPlaylistHandler(w http.ResponseWriter, req *http.Request) {
+	pl := Q.GetRawPlaylist()
+	json.NewEncoder(w).Encode(pl)
 }
