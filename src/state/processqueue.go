@@ -6,14 +6,12 @@ import (
 	"time"
 
 	"../help"
+	"../config"
 	"../youtube"
 )
 
 // Youtube downloader
 var YTDL youtube.Downloader
-
-// Debug
-var debugMode bool
 
 // Type to represent a queued video
 type Video struct {
@@ -48,9 +46,7 @@ type ProcessQueue struct {
 }
 
 // Struct initialiser
-func (q *ProcessQueue) Init(t time.Duration, b int, debug bool) {
-	debugMode = debug
-
+func (q *ProcessQueue) Init() {
 	// Init empty slices
 	q.Playlist = make([]Video, 0)
 	// Init empty map
@@ -58,20 +54,19 @@ func (q *ProcessQueue) Init(t time.Duration, b int, debug bool) {
 	q.Aliases = make(map[string]string)
 
 	// Initialise youtube-dl downloader,
-	YTDL.Init("youtube-dl/youtube-dl", "/tmp/")
-
-	if !debugMode {
-		YTDL.Update()
-	}
+	YTDL.Init()
+	YTDL.Update()
 
 	// Set timeout and max buckets
-	q.timeout = t
-	q.buckets = b
+	// Interpret time as seconds
+	q.timeout = time.Duration(config.Config.VideoTimeout) * time.Second
+	q.buckets = config.Config.MaxBuckets
 
 	// Init cache
 	q.BucketCache = make([][]VideoInfo, q.buckets)
 }
 
+// Gets alias from string map given ip address key
 func (q *ProcessQueue) GetAlias(addr string) (string, bool) {
 	ip := help.GetIP(addr)
 
@@ -82,6 +77,7 @@ func (q *ProcessQueue) GetAlias(addr string) (string, bool) {
 	return alias, exists
 }
 
+// Sets alias in string map using ip address as key
 func (q *ProcessQueue) SetAlias(addr, alias string) {
 	ip := help.GetIP(addr)
 
@@ -93,12 +89,15 @@ func (q *ProcessQueue) SetAlias(addr, alias string) {
 	q.UpdateBucketCache()
 }
 
+// Checks if given ip address can upload a video to playlist or has reached limit
 func (q *ProcessQueue) CanAddVideo(addr string) bool {
+	// get uploader ip
 	ip := help.GetIP(addr)
 
 	q.ListLock.RLock()
 	defer q.ListLock.RUnlock()
 
+	// iterates lists, returns false if queued videos by user ip >= max buckets
 	ipProcessQueue := 0
 	for _, vid := range q.Playlist {
 		if vid.IpAddr == ip {
@@ -111,19 +110,14 @@ func (q *ProcessQueue) CanAddVideo(addr string) bool {
 	return true
 }
 
-// Returns video popped from front of playlist or blankVideo
+// Returns video popped from front of playlist or empty video
+// Uses Justplayed map to create psudeo bucket behaviour from a simple list
 func (q *ProcessQueue) GetNextVideo() Video {
 	q.ListLock.Lock()
 
-	// #### DEBUG CODE ####
-	if len(q.Playlist) < 1 || debugMode {
-		// return empty video if list is empty
-		q.ListLock.Unlock()
-		return Video{}
-	}
-
-	if !q.Playlist[0].Ready {
-		// Top video is not ready so return empty video
+	// If list is empty or top video is not ready return empty video
+	if len(q.Playlist) < 1 || !q.Playlist[0].Ready{
+		log.Println("No playable videos in queue")
 		q.ListLock.Unlock()
 		return Video{}
 	}
@@ -149,26 +143,32 @@ func (q *ProcessQueue) GetNextVideo() Video {
 	return q.GetNextVideo()
 }
 
+// Add placeholder struct to queue and begin video downloader
 func (q *ProcessQueue) QuickAddVideo(addr, link string) {
+	// Gen new uuid and get uploaders ip
 	newId := help.GenUUID()
 	ip := help.GetIP(addr)
 
-	newVideo := Video{newId,"", "", ip, false}
+	// Add video struct with available information and set Ready: false
+	newVideo := Video{newId, "", "", ip, false}
 	q.ListLock.Lock()
 	q.Playlist = append(q.Playlist, newVideo)
 	q.ListLock.Unlock()
+	log.Println("Added to playlist:", link)
 
 	q.UpdateBucketCache()
 
+	// Start downloading process in new goroutine
 	go q.DownloadVideo(newId, link)
 }
 
-// Download video and updates video struct playlist
+// Download video and fill filepath into given video id in playlist
 func (q *ProcessQueue) DownloadVideo(vidId, link string) {
-	log.Println("Fetching title:", link)
+	log.Println("Starting download of video link:", link)
 	title, ok := YTDL.GetTitle(link)
 	if !ok {
-		log.Println("Failed stat video title of link:", link)
+		log.Println("ERROR: Cannot get video title of link:", link)
+		log.Println("ERROR: Download aborted:", link)
 		q.AdminRemoveVideo(vidId)
 		return
 	}
@@ -177,25 +177,17 @@ func (q *ProcessQueue) DownloadVideo(vidId, link string) {
 	q.ListLock.Lock()
 	for i, vid := range q.Playlist {
 		if vidId == vid.ID {
-			log.Println("Video found in list, adding title:", title)
 			q.Playlist[i].Title = title
-			if debugMode { q.Playlist[i].Ready = true }
 			break
 		}
 	}
 	q.ListLock.Unlock()
 	q.UpdateBucketCache()
 
-	// #### DEBUG ####
-	if debugMode {
-		log.Println("DEBUG: Skipping file download:", title)
-		return
-	}
-
 	// Download video with given uuid as filename
 	vidFilePath, err := YTDL.GetVideo(vidId, link)
 	if err {
-		log.Println("Download failed:", title)
+		log.Println("ERROR: Download failed:", link, title)
 		q.AdminRemoveVideo(vidId)
 		return
 	}
@@ -245,6 +237,7 @@ func (q *ProcessQueue) AdminRemoveVideo(remVidId string) {
 	}
 
 	q.ListLock.Unlock()
+
 	q.UpdateBucketCache()
 }
 
@@ -278,12 +271,6 @@ func (q *ProcessQueue) UserRemoveVideo(remVidId, remUserIp string) {
 	}
 
 	q.ListLock.Unlock()
-	q.UpdateBucketCache()
-}
 
-func (q *ProcessQueue) getAllAliases() map[string]string {
-	q.AliasLock.RLock()
-	out := q.Aliases
-	q.AliasLock.RUnlock()
-	return out
+	q.UpdateBucketCache()
 }

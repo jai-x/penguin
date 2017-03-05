@@ -1,10 +1,14 @@
 package youtube
 
+// Simple wrapper of youtube-dl functions
+
 import (
 	"log"
 	"strings"
 	"os/exec"
 	"path/filepath"
+
+	"../config"
 )
 
 type Downloader struct {
@@ -12,9 +16,9 @@ type Downloader struct {
 	downloadFolder string
 }
 
-func (ytdl *Downloader) Init(exe, dir string) {
-	ytdl.executable = exe
-	ytdl.downloadFolder = dir
+func (ytdl *Downloader) Init() {
+	ytdl.executable = config.Config.YTDLBin
+	ytdl.downloadFolder = config.Config.YTDLFolder
 }
 
 // Updates the binary
@@ -46,15 +50,15 @@ func (ytdl *Downloader) GetTitle(link string) (string, bool) {
 func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
 	// Template will cause youtube-dl to give the video the uuid as filename
 	// Will also download to specific folder
-	template := ytdl.downloadFolder + uuid
+	outputPath := ytdl.downloadFolder + uuid
 	// Download Video
-	dl := exec.Command(ytdl.executable, "-o", template, "--no-playlist", link)
+	dl := exec.Command(ytdl.executable, "-o", outputPath, "--no-playlist", link)
 	dl.Run()
 
 	// Uses wildcard search for file extension of vid file with uuid name
 	vidPath, _ := filepath.Glob((ytdl.downloadFolder+"/"+uuid+".*"))
 
-	// Return first instance of file search
+	// Return first instance of file search xor error
 	if len(vidPath) > 0 {
 		return vidPath[0], false
 	} else {

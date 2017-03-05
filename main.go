@@ -2,14 +2,16 @@ package main
 
 
 import (
-	"flag"
+	"os"
+	"log"
 	"./src/musicserver"
 )
 
 func main() {
-	debug := flag.Bool("debug", false, "Controls if the music server is put into debug mode")
-	flag.Parse()
-
-	musicserver.Init(*debug)
-	musicserver.Run(*debug)
+	if len(os.Args) < 2 {
+		log.Println("Pass config file as first argument to program")
+		os.Exit(1)
+	}
+	musicserver.Init(os.Args[1])
+	musicserver.Run()
 }

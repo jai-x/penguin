@@ -1,37 +1,32 @@
 package musicserver
 
+// Main package for music server
+// Sets urls and defines handler functions for each url
+
 import (
 	"log"
 	"net/http"
 
 	"../state"
 	"../admin"
+	"../config"
 )
 
 var (
 	Q state.ProcessQueue
 	A admin.AdminSessions
-
-	debug bool
 )
 
-func Init(debug bool) {
-	debug = debug
-	// Set timeout and debug 
-	// Also intialise video state
-	Q.Init(547, 3, debug)
-	// Intialise admin sessions with admin password
-	A.Init("pass")
+func Init(configPath string) {
+	config.Init(configPath)
 
-	// Debug check
-	if debug {
-		log.Println("####################")
-		log.Println("#### DEBUG MODE ####")
-		log.Println("####################")
-	}
+	Q.Init()
+	A.Init()
+
+	config.End()
 }
 
-func Run(debug bool) {
+func Run() {
 	// Url Handlers
 	// When a url is called, it spawns a new goroutine that runs the specifeed handler function
 
@@ -53,18 +48,9 @@ func Run(debug bool) {
 	// Static file server
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	if !debug {
-		// Start video player service in a separate goroutine
-		go Q.VideoPlayerService()
-	} else {
-		// Debug endpoints 
-		http.HandleFunc("/playlist", playlistHandler)
-		log.Println("DEBUG: Additional endpoints: /playlist")
-		http.HandleFunc("/rawplaylist", rawPlaylistHandler)
-		log.Println("DEBUG: Additional endpoint: /rawplaylist")
+	// Start video player service in a separate goroutine
+	go Q.VideoPlayerService()
 
-		log.Println("DEBUG: VideoPlayerService suspended")
-	}
 
 	// Run the server
 	log.Println("Running music server on port 80")

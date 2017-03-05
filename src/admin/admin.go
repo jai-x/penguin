@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 
 	"../help"
+	"../config"
 )
 
 type AdminSessions struct {
@@ -19,11 +20,13 @@ type AdminSessions struct {
 }
 
 // Constructor
-func (a *AdminSessions) Init(pass string) {
+func (a *AdminSessions) Init() {
+	// Init session timeout map
 	a.Admins = make(map[string]time.Time)
 
+	// Get password, hash and store
 	h := sha256.New()
-	h.Write([]byte(pass))
+	h.Write([]byte(config.Config.AdminPass))
 	a.pwdHash = fmt.Sprintf("%x", h.Sum(nil))
 }
 

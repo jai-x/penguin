@@ -7,14 +7,6 @@ import (
 	"net/http"
 )
 
-// Endpoint to return playlist JSON
-func playlistHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
-
-	info := Q.GetPlaylistInfo(req.RemoteAddr)
-	json.NewEncoder(w).Encode(info)
-}
-
 // Endpoint for queueing video via ajax
 func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
@@ -73,9 +65,4 @@ func ajaxAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
 	plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
 	templ, _ := template.ParseFiles("templates/admin_playlist.html")
 	templ.Execute(w, plInfo)
-}
-
-func rawPlaylistHandler(w http.ResponseWriter, req *http.Request) {
-	pl := Q.GetRawPlaylist()
-	json.NewEncoder(w).Encode(pl)
 }

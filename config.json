@@ -1,0 +1,7 @@
+{
+	"AdminPass":"password",
+	"VideoTimeout":547,
+	"MaxBuckets":3,
+	"YTDLFolder":"/tmp/musicserver",
+	"YTDLBin":"./youtube-dl/youtube-dl"
+}

@@ -3,7 +3,7 @@ package state
 // These data structures are derived from information in ProcessQueue
 // These are used for user facing data requests
 
-// Video struct with only user relevant fields
+// Video struct to return to user
 type VideoInfo struct {
 	Title string
 	IpAddr string
@@ -20,20 +20,23 @@ type PlaylistInfo struct {
 }
 
 // Method to convert a Video struct to VideoInfo struct, given aliasmap
-func (v *Video) ConvertToInfo(aliasMap map[string]string) VideoInfo {
-	name, exists := aliasMap[v.IpAddr]
+// Essentially, updates using facing information from the playlist
+func (q *ProcessQueue) ConvertToInfo(v Video) VideoInfo {
+	q.AliasLock.RLock()
+	defer q.AliasLock.RUnlock()
+
+	name, exists := q.Aliases[v.IpAddr]
 	if !exists {
 		name = "Anon"
 	}
 	return VideoInfo{v.Title, v.IpAddr, name, v.ID, v.Ready}
 }
 
+// Creates 2d slice to represent a bucket structure and stores it in BucketCache
 func (q *ProcessQueue) UpdateBucketCache() {
-	// Read lock for playlist and aliases
+	// Read lock for playlist
 	q.ListLock.RLock()
 	defer q.ListLock.RUnlock()
-	q.AliasLock.RLock()
-	defer q.AliasLock.RUnlock()
 
 	// Write lock for cache
 	q.CacheLock.Lock()
@@ -50,14 +53,14 @@ func (q *ProcessQueue) UpdateBucketCache() {
 		b, _ := ipToBucket[vid.IpAddr]
 
 		// Convert video to VideoInfo and add to bucket
-		q.BucketCache[b] = append(q.BucketCache[b], vid.ConvertToInfo(q.Aliases))
+		q.BucketCache[b] = append(q.BucketCache[b], q.ConvertToInfo(vid))
 
 		// Increment bucket for ip address
 		ipToBucket[vid.IpAddr]++
 	}
 }
 
-// Method to return PlaylistInfo from the ProcessQueue
+// Uses BucketCache and Aliasmap to generate user facing information
 func (q *ProcessQueue) GetPlaylistInfo(addr string) PlaylistInfo {
 	// New playlist information
 	var out PlaylistInfo
@@ -75,19 +78,11 @@ func (q *ProcessQueue) GetPlaylistInfo(addr string) PlaylistInfo {
 		out.UserAlias = "Anon"
 	}
 
-	// Read lock NowPlaying and Aliases
+	// Read lock NowPlaying
 	q.NPLock.RLock()
 	defer q.NPLock.RUnlock()
-	q.AliasLock.RLock()
-	defer q.AliasLock.RUnlock()
 	// Get nowplaying
-	out.NowPlaying = q.NowPlaying.ConvertToInfo(q.Aliases)
+	out.NowPlaying = q.ConvertToInfo(q.NowPlaying)
 
 	return out
-}
-
-func (q *ProcessQueue) GetRawPlaylist() []Video {
-	q.ListLock.RLock()
-	defer q.ListLock.RUnlock()
-	return q.Playlist
 }
