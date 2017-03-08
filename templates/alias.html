@@ -34,7 +34,7 @@
         <section class="row margin-top-2x">
           <div class="small-6 small-push-3 columns">
             <h4>Please set your alias</h4>
-            <form action="/alias" method="POST">
+            <form action="/alias" enctype="multipart/form-data" method="POST">
               <div class="input-group">
                 <span class="input-group-label">Alias:</span>
                 <input type="text" name="alias_value" class="input-group-field" placeholder="FalcoMaster3000" required maxlength="40">

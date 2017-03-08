@@ -59,7 +59,7 @@ func (q *ProcessQueue) Init() {
 
 	// Set timeout and max buckets
 	// Interpret time as seconds
-	q.timeout = time.Duration(config.Config.VideoTimeout) * time.Second
+	q.timeout = time.Duration(config.Config.VideoTimeout)
 	q.buckets = config.Config.MaxBuckets
 
 	// Init cache
@@ -117,7 +117,7 @@ func (q *ProcessQueue) GetNextVideo() Video {
 
 	// If list is empty or top video is not ready return empty video
 	if len(q.Playlist) < 1 || !q.Playlist[0].Ready{
-		log.Println("No playable videos in queue")
+		log.Println("(/'-')/  No Playable Videos in Playlist \\('-'\\)")
 		q.ListLock.Unlock()
 		return Video{}
 	}

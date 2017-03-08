@@ -64,9 +64,9 @@ func (q *ProcessQueue) VideoPlayerService() {
 
 			// Delete played video file
 			os.Remove(currentVid.File)
+			log.Println("Removed video file:", currentVid.File)
 
 		} else {
-			//log.Println("(/'-')/  No Videos in Playlist \\('-'\\)")
 			time.Sleep(1 * time.Second)
 		}
 	}

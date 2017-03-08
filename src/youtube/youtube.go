@@ -74,7 +74,7 @@ func (ytdl *Downloader) GetTitle(link string) (string, bool) {
 func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
 	// Template will cause youtube-dl to give the video the uuid as filename
 	// Will also download to specific folder
-	outputPath := ytdl.downloadFolder + uuid
+	outputPath := ytdl.downloadFolder + "/" + uuid
 	// Download Video
 	dl := exec.Command(ytdl.executable, "-o", outputPath, "--no-playlist", link)
 	dl.Run()
