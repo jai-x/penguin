@@ -52,15 +52,16 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 		_, aliasExists := Q.GetAlias(req.RemoteAddr)
 
 		if !aliasExists {
-			http.Redirect(w, req, "/alias", http.StatusExpectationFailed)
+			http.Redirect(w, req, "/alias", http.StatusSeeOther)
 			return
 		}
 
+		// Get link from form
 		videoLink := req.PostFormValue("video_link")
 
 		// Submitted video link is blank
 		if len(strings.TrimSpace(videoLink)) == 0 {
-			http.Redirect(w, req, "/", http.StatusExpectationFailed)
+			http.Redirect(w, req, "/", http.StatusSeeOther)
 			return
 		}
 
@@ -99,10 +100,19 @@ func userRemoveHandler(w http.ResponseWriter, req *http.Request) {
 func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 
+		// Must open file before all else or connection is reset if redirected
+		// Opens the POST'ed file
+		file, header, err := req.FormFile("video_file")
+		defer file.Close()
+		if err != nil {
+			fmt.Fprintln(w, "Can't parse uploaded file", err)
+			return
+		}
+
 		_, aliasExists := Q.GetAlias(req.RemoteAddr)
 		// If user has a valid alias
 		if !aliasExists {
-			http.Redirect(w, req, "/alias", http.StatusExpectationFailed)
+			http.Redirect(w, req, "/alias", http.StatusSeeOther)
 			return
 		}
 
@@ -111,15 +121,6 @@ func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("Content-type", "text/html")
 			vidNotAddedTempl, _ := template.ParseFiles("templates/not_added.html")
 			vidNotAddedTempl.Execute(w, nil)
-			http.Error(w, "", http.StatusExpectationFailed)
-			return
-		}
-
-		// Opens the POST'ed file
-		file, header, err := req.FormFile("video_file")
-		defer file.Close()
-		if err != nil {
-			fmt.Fprintln(w, "Can't parse uploaded file", err)
 			return
 		}
 
@@ -142,6 +143,7 @@ func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		// Add the video to queue
 		go Q.AddUploadedVideo(req.RemoteAddr, header.Filename, path, id)
 
 		// Return video added page
