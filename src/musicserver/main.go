@@ -53,6 +53,7 @@ func Run() {
 	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
 	http.HandleFunc("/ajax/playlist", ajaxPlaylistHandler)
 	http.HandleFunc("/ajax/adminplaylist", ajaxAdminPlaylistHandler)
+	http.HandleFunc("/ajax/upload", ajaxFileUploadHandler)
 	// Static file server
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
