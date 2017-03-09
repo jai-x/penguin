@@ -19,10 +19,11 @@ type Downloader struct {
 
 func (ytdl *Downloader) Init() {
 	ytdl.executable = config.Config.YTDLBin
-	ytdl.downloadFolder = config.Config.YTDLFolder
+	ytdl.downloadFolder = config.Config.DownloadFolder
 
 	if !ytdl.checkFiles() {
 		os.Mkdir(ytdl.downloadFolder, 0755)
+		log.Println("Creating download folder:", ytdl.downloadFolder)
 		if !ytdl.checkFiles() {
 			log.Println("Error with folder creation:", ytdl.downloadFolder)
 			os.Exit(1)
@@ -37,10 +38,10 @@ func (ytdl *Downloader) checkFiles() bool {
 	}
 
 	if _, err := os.Stat(ytdl.downloadFolder); os.IsNotExist(err) {
-		log.Println("youtube-dl download folder not found:", ytdl.downloadFolder)
+		log.Println("Download folder not found:", ytdl.downloadFolder)
 		return false
 	} else {
-		log.Println("youtube-dl download exists!")
+		log.Println("Download folder exists!")
 		return true
 	}
 }

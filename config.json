@@ -2,7 +2,7 @@
 	"AdminPass":"password",
 	"VideoTimeout":547,
 	"MaxBuckets":3,
-	"YTDLFolder":"/tmp/musicserver",
+	"DownloadFolder":"/tmp/musicserver",
 	"YTDLBin":"./youtube-dl/youtube-dl",
 	"Port":8080
 }

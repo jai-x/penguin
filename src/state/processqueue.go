@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 	"time"
+	"strings"
+	"path/filepath"
 
 	"../help"
 	"../config"
@@ -43,6 +45,7 @@ type ProcessQueue struct {
 
 	timeout time.Duration
 	buckets int
+	DownloadFolder string
 }
 
 // Struct initialiser
@@ -57,10 +60,10 @@ func (q *ProcessQueue) Init() {
 	YTDL.Init()
 	YTDL.Update()
 
-	// Set timeout and max buckets
-	// Interpret time as seconds
+	// Set timeout and max buckets and download folder
 	q.timeout = time.Duration(config.Config.VideoTimeout)
 	q.buckets = config.Config.MaxBuckets
+	q.DownloadFolder = config.Config.DownloadFolder
 
 	// Init cache
 	q.BucketCache = make([][]VideoInfo, q.buckets)
@@ -143,8 +146,25 @@ func (q *ProcessQueue) GetNextVideo() Video {
 	return q.GetNextVideo()
 }
 
+// Add user uploaded video to queue
+func (q *ProcessQueue) AddUploadedVideo(addr, title, filePath, id string) {
+	ip := help.GetIP(addr)
+
+	// Trim file extension from filename title, if any
+	title = strings.TrimSuffix(title, filepath.Ext(title))
+
+	// Create video struct and add to queue
+	newVideo := Video{id, title, filePath, ip, true}
+	q.ListLock.Lock()
+	q.Playlist = append(q.Playlist, newVideo)
+	q.ListLock.Unlock()
+	log.Println("Added to playlist:", title)
+
+	q.UpdateBucketCache()
+}
+
 // Add placeholder struct to queue and begin video downloader
-func (q *ProcessQueue) QuickAddVideo(addr, link string) {
+func (q *ProcessQueue) QuickAddVideoLink(addr, link string) {
 	// Gen new uuid and get uploaders ip
 	newId := help.GenUUID()
 	ip := help.GetIP(addr)

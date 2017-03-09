@@ -15,7 +15,7 @@ type Configuration struct {
 	AdminPass string
 	VideoTimeout int
 	MaxBuckets int
-	YTDLFolder string
+	DownloadFolder string
 	YTDLBin string
 	Port int
 }

@@ -41,7 +41,7 @@ func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// Start video downloader in new goroutine so 
-		Q.QuickAddVideo(req.RemoteAddr, videoLink)
+		Q.QuickAddVideoLink(req.RemoteAddr, videoLink)
 
 		out["Message"] = "Video added"
 		out["Type"] = "success"

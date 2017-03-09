@@ -42,12 +42,26 @@
 
             <h5>Add a video</h5>
 
+            <!-- Queue video via link -->
             <form action="/queue" method="POST" id="queue">
               <div class="input-group">
                 <span class="input-group-label">Video link</span>
                 <input type="url" class="input-group-field" name="video_link" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required id="queueinput">
                 <div class="input-group-button">
                   <input type="submit" value="Go" class="button" id="queuebutton">
+                </div>
+              </div>
+            </form>
+
+            <!-- Queue video via upload -->
+            <form action="/upload" method="POST" id="upload" enctype="multipart/form-data">
+              <div class="input-group">
+                <span class="input-group-label">Video file</span>
+                <div class="upload-box input-group-field">
+                  <input type="file" name="video_file" class="upload-input" required id="fileinput">
+                </div>
+                <div class="input-group-button">
+                  <input type="submit" value="Go" class="button" id="filebutton">
                 </div>
               </div>
             </form>
