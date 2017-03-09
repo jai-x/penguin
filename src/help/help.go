@@ -31,3 +31,12 @@ func GenUUID() string {
 	uuid := fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 	return uuid
 }
+
+func PrintMasthead() {
+	fmt.Println("                              _            ")
+	fmt.Println(" _ __   ___ _ __   __ _ _   _(_)_ __      ")
+	fmt.Println("| '_ \\ / _ \\ '_ \\ / _` | | | | | '_ \\ ")
+	fmt.Println("| |_) |  __/ | | | (_| | |_| | | | | |    ")
+	fmt.Println("| .__/ \\___|_| |_|\\__, |\\__,_|_|_| |_| ")
+	fmt.Println("|_|               |___/                   \n")
+}

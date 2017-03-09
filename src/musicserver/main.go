@@ -11,6 +11,7 @@ import (
 	"../state"
 	"../admin"
 	"../config"
+	"../help"
 )
 
 var (
@@ -28,11 +29,13 @@ func Init(configPath string) {
 	port = ":" + strconv.Itoa(config.Config.Port)
 
 	config.End()
+
+	help.PrintMasthead()
 }
 
 func Run() {
 	// Url Handlers
-	// When a url is called, it spawns a new goroutine that runs the specifeed handler function
+	// When a url is called, it spawns a new goroutine that runs the specified handler function
 
 	// Admin url endpoints
 	http.HandleFunc("/admin/", adminHandler)
