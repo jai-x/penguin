@@ -14,11 +14,16 @@ function link_form_override() {
     event.preventDefault();
     // Set form button to Submitting...
     $("#queuebutton").val("Submitting...");
+    // Get form data
+    var formData = {
+      "video_link": $("input[name=video_link]").val(),
+    }
+    console.log(formData);
     // The ajax request
     $.ajax({
       type: "POST",
       url: "/ajax/queue",
-      data: new FormData($("#queue")[0])
+      data: formData,
     })
     .done(function(data) {
       // Reset form button and link input
