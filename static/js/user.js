@@ -18,7 +18,6 @@ function link_form_override() {
     var formData = {
       "video_link": $("input[name=video_link]").val(),
     }
-    console.log(formData);
     // The ajax request
     $.ajax({
       type: "POST",
