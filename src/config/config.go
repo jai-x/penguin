@@ -14,9 +14,12 @@ var (
 type Configuration struct {
 	AdminPass string
 	VideoTimeout int
+	VideoPlayer string
+	VideoPlayerArgs string
 	MaxBuckets int
 	DownloadFolder string
 	YTDLBin string
+	YTDLArgs string
 	Port int
 }
 

@@ -1,0 +1,10 @@
+{
+	"AdminPass":       "password",
+	"VideoTimeout":    547,
+	"VideoPlayer":     "mpv",
+	"VideoPlayerArgs": "-vo xv -fs -quiet -af=drc=2:0.25",
+	"MaxBuckets":      3,
+	"DownloadFolder":  "/tmp/musicserver",
+	"YTDLBin":         "./youtube-dl/youtube-dl",
+	"Port":            8080
+}

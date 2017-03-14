@@ -59,7 +59,7 @@ func (ytdl *Downloader) Update() {
 
 // Returns title as string and boolean if successful
 func (ytdl *Downloader) GetTitle(link string) (string, bool) {
-	cmd := exec.Command(ytdl.executable, "--get-title",  "--no-playlist", link)
+	cmd := exec.Command(ytdl.executable, "--get-title", "--no-playlist", link)
 	// Output() runs the command and produces output
 	output, err := cmd.Output()
 	if err != nil {

@@ -30,15 +30,17 @@ func (q *ProcessQueue) VideoPlayerService() {
 			// Explicit unlocks to prevent lock during entire video
 
 			log.Println("Playing Video:", currentVid.Title)
-			log.Println("Video file:", currentVid.File)
 
 			// Since Go is a bit weird here's some extra comments for how timeout is done
 			// Make a message channel, size of one, and only transport errors
 			timeoutChannel := make(chan error, 1)
 
+			// Need to have whitespace splitted arguments as individual strings or as an array
+			args := append(q.PlayerArgs, currentVid.File)
+
 			// Set the player off and call wait in its own goroutine
 			// It will send it's exit signal and/or errors to the timeoutChannel when done
-			player := exec.Command("mpv", "-vo", "xv", "-fs", "-quiet", "-af=drc=2:0.25", currentVid.File)
+			player := exec.Command(q.PlayerExe, args...)
 			player.Start()
 			go func() {
 				timeoutChannel <- player.Wait()
@@ -64,7 +66,7 @@ func (q *ProcessQueue) VideoPlayerService() {
 
 			// Delete played video file
 			os.Remove(currentVid.File)
-			log.Println("Removed video file:", currentVid.File)
+			log.Println("Removed video file:", currentVid.Title)
 
 		} else {
 			time.Sleep(1 * time.Second)

@@ -46,6 +46,9 @@ type ProcessQueue struct {
 	timeout time.Duration
 	buckets int
 	DownloadFolder string
+
+	PlayerExe string
+	PlayerArgs[] string
 }
 
 // Struct initialiser
@@ -64,6 +67,10 @@ func (q *ProcessQueue) Init() {
 	q.timeout = time.Duration(config.Config.VideoTimeout)
 	q.buckets = config.Config.MaxBuckets
 	q.DownloadFolder = config.Config.DownloadFolder
+
+	// Set video player and arguments
+	q.PlayerExe = config.Config.VideoPlayer
+	q.PlayerArgs = strings.Fields(config.Config.VideoPlayerArgs)
 
 	// Init cache
 	q.BucketCache = make([][]VideoInfo, q.buckets)
