@@ -4,30 +4,30 @@ The music server written in Golang
 
 ### Program structure
 
-* `admin` package
+* `admin` package   
 Contains data structures and functions to keep track of admin IP addresses that access the system. These IP addresses are granted permission to the admin page and the admin URL endpoints.
 
-* `config` Package
+* `config` package    
 Contains functions to read the config.json file and store it as a local struct
 
-* `help` package
+* `help` package    
 Contains some commonly used convenience functions used throughout the program
 
-* `musicserver` package
+* `musicserver` package   
 Contains main HTTP server. Defines URL endpoints for users, admin and AJAX user requests. Defines function handlers for each URL endpoint. Initialises ProcessQueue and Admin structs and stores each instance as a variable accessed by the handler functions.
 
-* `state` package
+* `state` package   
 Defines ProcessQueue struct and functions which manage the queue of videos. Stores a Downloader instance from the `youtube` package to use to download videos. Provides the videoplayer process. Keeps a cached version of the video queue in a bucket representation. Provides functions to update and fetch the bucket representation, which is used to provide user facing information.
 
-* `templatecache` package
+* `templatecache` package   
 Simple wrapper around the `html/template` functions to cache the templates. Templates were previously parsed and executed at runtime. This package parses and stores the parsed templates in memory at program startup. Handler functions use the `Render` function with a template name parameter.
 
-* `youtube` package
+* `youtube` package   
 Simple wrapper around the youtube-dl command line program. Will self-update youtube-dl on struct init.
 
 ### Features? (I don't know what to call this section)
 
-* When returning a HTML page, the handlers in the `musicserver` will use templates found in the `templates/` directory. Makes use of the `html/template` package. Full UTF-8 is supported so you can use emoji and stuff for user aliases!
+* When returning a HTML page, the handlers in the `musicserver` package will use the `templatecache` package. This uses templates found in the `templates/` directory. It makes use of the `html/template` package. Full UTF-8 is supported so you can use emoji and stuff for user aliases!
 
 * The `musicserver` package serves the contents of the `static/` directory directly.
 
