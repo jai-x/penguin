@@ -5,7 +5,8 @@ import (
 	"time"
 	"net/http"
 	"os/exec"
-	"html/template"
+
+	"../templatecache"
 )
 
 func adminHandler(w http.ResponseWriter, req *http.Request) {
@@ -13,11 +14,9 @@ func adminHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/admin/login", http.StatusSeeOther)
 	}
 
-	w.Header().Set("Content-type", "text/html")
-
 	plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
-	adminTemplate, _ := template.ParseFiles("templates/admin.html")
-	adminTemplate.Execute(w, plInfo)
+
+	templatecache.Render(w, "admin", &plInfo)
 }
 
 func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
@@ -25,18 +24,15 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 		correct := A.VerifyPassword(req.PostFormValue("admin_pwd"))
 
 		if !correct {
-			badLoginTempl, _ := template.ParseFiles("templates/login_incorrect.html")
-			badLoginTempl.Execute(w, nil)
+			templatecache.Render(w, "login_incorrect", nil)
+			return
 		} else {
 			A.StartSession(req.RemoteAddr)
 			http.Redirect(w, req, "/admin", http.StatusSeeOther)
 		}
 
 	} else {
-		w.Header().Set("Content-type", "text/html")
-
-		loginTemplate, _ := template.ParseFiles("templates/admin_login.html")
-		loginTemplate.Execute(w, nil)
+		templatecache.Render(w, "admin_login", nil)
 	}
 }
 

@@ -7,10 +7,13 @@ import (
 	"encoding/json"
 )
 
+// Global config struct instance
 var (
 	Config Configuration
 )
 
+// Config struct
+// The config.json file should mirror itself to this struct with given values
 type Configuration struct {
 	AdminPass string
 	VideoTimeout int
@@ -21,15 +24,18 @@ type Configuration struct {
 	YTDLBin string
 	YTDLArgs string
 	Port int
+	TemplateFolder string
 }
 
 func Init(configPath string) {
+	// Attempt to read file in
 	confFile, fileErr := ioutil.ReadFile(configPath)
 	if fileErr != nil {
 		log.Println("File read error:", fileErr)
 		os.Exit(1)
 	}
 
+	// Attempt to parse file as valid JSON
 	parseErr := json.Unmarshal(confFile, &Config)
 	if parseErr != nil {
 		log.Println("JSON parse error:", parseErr)

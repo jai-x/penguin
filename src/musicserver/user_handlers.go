@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"net/http"
-	"html/template"
 
+	"../templatecache"
 	"../help"
 )
 
@@ -18,10 +18,8 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 	if !aliasExists {
 		http.Redirect(w, req, "/alias", http.StatusSeeOther)
 	} else {
-		w.Header().Set("Content-type", "text/html")
 		plInfo := Q.GetPlaylistInfo(req.RemoteAddr)
-		homeTemplate, _ := template.ParseFiles("templates/home.html")
-		homeTemplate.Execute(w, plInfo)
+		templatecache.Render(w, "home", &plInfo)
 	}
 }
 
@@ -30,7 +28,7 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodPost {
 		newAlias := req.PostFormValue("alias_value")
 
-		// Check of alias is whitespace
+		// Check if alias is whitespace
 		if len(strings.TrimSpace(newAlias)) == 0 {
 			http.Redirect(w, req, "/alias", http.StatusSeeOther)
 		}
@@ -39,9 +37,7 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 	} else {
-		w.Header().Set("Content-type", "text/html")
-		aliasTemplate, _ := template.ParseFiles("templates/alias.html")
-		aliasTemplate.Execute(w, nil)
+		templatecache.Render(w, "alias", nil)
 	}
 }
 
@@ -67,18 +63,14 @@ func queueHandler(w http.ResponseWriter, req *http.Request) {
 
 		// If user has max added videos
 		if !Q.CanAddVideo(req.RemoteAddr) {
-			w.Header().Set("Content-type", "text/html")
-			vidNotAddedTempl, _ := template.ParseFiles("templates/not_added.html")
-			vidNotAddedTempl.Execute(w, nil)
+			templatecache.Render(w, "not_added", nil)
 			return
 		}
 
 		// Add video
 		Q.QuickAddVideoLink(req.RemoteAddr, videoLink)
 
-		w.Header().Set("Content-type", "text/html")
-		vidAddedTempl, _ := template.ParseFiles("templates/added.html")
-		vidAddedTempl.Execute(w, nil)
+		templatecache.Render(w, "added", nil)
 	} else {
 		// Redirect back to homepage if not a POST request)
 		http.Redirect(w, req, "/", http.StatusSeeOther)
@@ -118,9 +110,7 @@ func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 
 		// If user has max added videos
 		if !Q.CanAddVideo(req.RemoteAddr) {
-			w.Header().Set("Content-type", "text/html")
-			vidNotAddedTempl, _ := template.ParseFiles("templates/not_added.html")
-			vidNotAddedTempl.Execute(w, nil)
+			templatecache.Render(w, "not_added", nil)
 			return
 		}
 
@@ -147,9 +137,7 @@ func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 		go Q.AddUploadedVideo(req.RemoteAddr, header.Filename, path, id)
 
 		// Return video added page
-		w.Header().Set("Content-type", "text/html")
-		vidAddedTempl, _ := template.ParseFiles("templates/added.html")
-		vidAddedTempl.Execute(w, nil)
+		templatecache.Render(w, "added", nil)
 	} else {
 		// Redirect back to homepage if not a POST request)
 		http.Redirect(w, req, "/", http.StatusSeeOther)

@@ -19,6 +19,9 @@ Contains main HTTP server. Defines URL endpoints for users, admin and AJAX user 
 * `state` package
 Defines ProcessQueue struct and functions which manage the queue of videos. Stores a Downloader instance from the `youtube` package to use to download videos. Provides the videoplayer process. Keeps a cached version of the video queue in a bucket representation. Provides functions to update and fetch the bucket representation, which is used to provide user facing information.
 
+* `templatecache` package
+Simple wrapper around the `html/template` functions to cache the templates. Templates were previously parsed and executed at runtime. This package parses and stores the parsed templates in memory at program startup. Handler functions use the `Render` function with a template name parameter.
+
 * `youtube` package
 Simple wrapper around the youtube-dl command line program. Will self-update youtube-dl on struct init.
 

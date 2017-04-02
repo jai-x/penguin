@@ -10,6 +10,7 @@ import (
 
 	"../state"
 	"../admin"
+	"../templatecache"
 	"../config"
 	"../help"
 )
@@ -21,13 +22,17 @@ var (
 )
 
 func Init(configPath string) {
+	// Get config
 	config.Init(configPath)
 
 	Q.Init()
 	A.Init()
+	templatecache.Init()
 
+	// Port is required as a string with a prefix colon
 	port = ":" + strconv.Itoa(config.Config.Port)
 
+	// Empty config
 	config.End()
 
 	help.PrintMasthead()
@@ -55,11 +60,10 @@ func Run() {
 	http.HandleFunc("/ajax/adminplaylist", ajaxAdminPlaylistHandler)
 	http.HandleFunc("/ajax/upload", ajaxFileUploadHandler)
 	// Static file server
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	http.Handle("/static/",http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	// Start video player service in a separate goroutine
 	go Q.VideoPlayerService()
-
 
 	// Run the server
 	log.Println("Running music server on port", port)

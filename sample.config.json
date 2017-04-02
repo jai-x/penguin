@@ -6,5 +6,6 @@
 	"MaxBuckets":      3,
 	"DownloadFolder":  "/tmp/musicserver",
 	"YTDLBin":         "./youtube-dl/youtube-dl",
-	"Port":            8080
+	"Port":            8080,
+	"TemplateFolder":  "./templates"
 }
