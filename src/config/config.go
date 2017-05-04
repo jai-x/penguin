@@ -23,6 +23,7 @@ type Configuration struct {
 	DownloadFolder string
 	YTDLBin string
 	YTDLArgs string
+	FFMPEGBin string
 	Port int
 	TemplateFolder string
 }

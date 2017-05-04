@@ -15,11 +15,13 @@ import (
 type Downloader struct {
 	executable string
 	downloadFolder string
+	ffmpegExe string
 }
 
 func (ytdl *Downloader) Init() {
 	ytdl.executable = config.Config.YTDLBin
 	ytdl.downloadFolder = config.Config.DownloadFolder
+	ytdl.ffmpegExe = config.Config.FFMPEGBin
 
 	if !ytdl.checkFiles() {
 		os.Mkdir(ytdl.downloadFolder, 0755)
@@ -77,7 +79,7 @@ func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
 	// Will also download to specific folder
 	outputPath := ytdl.downloadFolder + "/" + uuid
 	// Download Video
-	dl := exec.Command(ytdl.executable, "-o", outputPath, "--no-playlist", link)
+	dl := exec.Command(ytdl.executable, "-o", outputPath, "--ffmpeg-location", ytdl.ffmpegExe, "--no-playlist", link)
 	dl.Run()
 
 	// Uses wildcard search for file extension of vid file with uuid name

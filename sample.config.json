@@ -5,7 +5,8 @@
 	"VideoPlayerArgs": "-vo xv -fs -quiet -af=drc=2:0.25",
 	"MaxBuckets":      3,
 	"DownloadFolder":  "/tmp/musicserver",
-	"YTDLBin":         "./youtube-dl/youtube-dl",
+	"YTDLBin":         "./dist/youtube-dl",
+	"FFMPEGBin":       "./dist/ffmpeg",
 	"Port":            8080,
 	"TemplateFolder":  "./templates"
 }
