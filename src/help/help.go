@@ -32,6 +32,14 @@ func GenUUID() string {
 	return uuid
 }
 
+func StripYoutubePlaylist(link string) string {
+	if strings.Contains(link, "youtube.com") && strings.Contains(link,"&list") {
+		return strings.Split(link, "&list")[0]
+	} else {
+		return link
+	}
+}
+
 func PrintMasthead() {
 	fmt.Println("                              _            ")
 	fmt.Println(" _ __   ___ _ __   __ _ _   _(_)_ __      ")

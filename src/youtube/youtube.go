@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"../config"
+	"../help"
 )
 
 type Downloader struct {
@@ -75,6 +76,9 @@ func (ytdl *Downloader) GetTitle(link string) (string, bool) {
 
 // Downloads video and returns path to video file, or error
 func (ytdl *Downloader) GetVideo(uuid, link string) (string, bool) {
+	// Strip playlist info from URL if it is a youtube link
+	link = help.StripYoutubePlaylist(link)
+
 	// Template will cause youtube-dl to give the video the uuid as filename
 	// Will also download to specific folder
 	outputPath := ytdl.downloadFolder + "/" + uuid
