@@ -53,6 +53,7 @@ func Run() {
 	http.HandleFunc("/queue", queueHandler)
 	http.HandleFunc("/remove", userRemoveHandler)
 	http.HandleFunc("/upload", fileUploadHandler)
+	http.HandleFunc("/list", showList)
 	http.HandleFunc("/", homeHandler)
 	// AJAX Endpoints
 	http.HandleFunc("/ajax/queue", ajaxQueueHandler)

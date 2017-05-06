@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"net/http"
+	"encoding/json"
 
 	"../templatecache"
 	"../help"
@@ -142,4 +143,11 @@ func fileUploadHandler(w http.ResponseWriter, req *http.Request) {
 		// Redirect back to homepage if not a POST request)
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 	}
+}
+
+func showList(w http.ResponseWriter, req *http.Request) {
+	Q.ListLock.RLock()
+	defer Q.ListLock.RUnlock()
+
+	json.NewEncoder(w).Encode(Q.Playlist)
 }

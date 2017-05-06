@@ -48,7 +48,7 @@ type ProcessQueue struct {
 	DownloadFolder string
 
 	PlayerExe string
-	PlayerArgs[] string
+	PlayerArgs[]string
 }
 
 // Struct initialiser
