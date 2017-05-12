@@ -2,6 +2,7 @@ package admin
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"sync"
 	"crypto/sha256"
@@ -10,34 +11,35 @@ import (
 	"../config"
 )
 
-type AdminSessions struct {
+var (
 	// Map of admin ip addresses to session timeout token
-	Admins map[string]time.Time
-	AdminLock sync.RWMutex
+	adminLock sync.RWMutex
+	adminMap map[string]time.Time
 
 	// SHA256 hash of pwd
 	pwdHash string
-}
+)
 
 // Constructor
-func (a *AdminSessions) Init() {
+func Init() {
+	log.Println("Admin init...")
 	// Init session timeout map
-	a.Admins = make(map[string]time.Time)
+	adminMap = make(map[string]time.Time)
 
 	// Get password, hash and store
 	h := sha256.New()
 	h.Write([]byte(config.Config.AdminPass))
-	a.pwdHash = fmt.Sprintf("%x", h.Sum(nil))
+	pwdHash = fmt.Sprintf("%x", h.Sum(nil))
 }
 
 // Get session from client address
-func (a *AdminSessions) ValidSession(addr string) bool {
+func ValidSession(addr string) bool {
 	ip := help.GetIP(addr)
 
-	a.AdminLock.RLock()
-	defer a.AdminLock.RUnlock()
+	adminLock.RLock()
+	defer adminLock.RUnlock()
 
-	expiry, exists := a.Admins[ip]
+	expiry, exists := adminMap[ip]
 	if !exists || time.Now().After(expiry) {
 		// Invalid session
 		return false
@@ -47,30 +49,30 @@ func (a *AdminSessions) ValidSession(addr string) bool {
 }
 
 // start session given client address
-func (a *AdminSessions) StartSession(addr string) {
+func StartSession(addr string) {
 	ip := help.GetIP(addr)
 
-	a.AdminLock.Lock()
-	defer a.AdminLock.Unlock()
+	adminLock.Lock()
+	defer adminLock.Unlock()
 
 	// Timeout is 1 hour later
-	a.Admins[ip] = time.Now().Add(1 * time.Hour)
+	adminMap[ip] = time.Now().Add(1 * time.Hour)
 }
 
 // End session at a given address
-func (a *AdminSessions) EndSession(addr string) {
+func EndSession(addr string) {
 	ip := help.GetIP(addr)
 
-	a.AdminLock.Lock()
-	defer a.AdminLock.Unlock()
+	adminLock.Lock()
+	defer adminLock.Unlock()
 
 	// Delete session from map
-	delete(a.Admins, ip)
+	delete(adminMap, ip)
 }
 
 // Verify given password against password hash
-func (a *AdminSessions) VerifyPassword(pass string) bool {
+func VerifyPassword(pass string) bool {
 	h := sha256.New()
 	h.Write([]byte(pass))
-	return a.pwdHash == fmt.Sprintf("%x", h.Sum(nil))
+	return pwdHash == fmt.Sprintf("%x", h.Sum(nil))
 }

@@ -16,7 +16,7 @@ var (
 // The config.json file should mirror itself to this struct with given values
 type Configuration struct {
 	AdminPass string
-	VideoTimeout int
+	VideoTimeout string
 	VideoPlayer string
 	VideoPlayerArgs string
 	MaxBuckets int
@@ -47,7 +47,7 @@ func Init(configPath string) {
 	log.Println("Config file read!")
 }
 
-func End() {
+func Destroy() {
 	// config is now emptied
 	Config = Configuration{}
 }

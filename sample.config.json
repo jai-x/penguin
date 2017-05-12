@@ -1,9 +1,9 @@
 {
 	"AdminPass":       "password",
-	"VideoTimeout":    547,
+	"VideoTimeout":    "547s",
 	"VideoPlayer":     "mpv",
 	"VideoPlayerArgs": "-vo xv -fs -quiet -af=drc=2:0.25",
-	"MaxBuckets":      3,
+	"MaxBuckets":      4,
 	"DownloadFolder":  "/tmp/musicserver",
 	"YTDLBin":         "./dist/youtube-dl",
 	"FFMPEGBin":       "./dist/ffmpeg",

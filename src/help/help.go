@@ -32,6 +32,7 @@ func GenUUID() string {
 	return uuid
 }
 
+// Strip youtube playlist url parameters from a youtube video link
 func StripYoutubePlaylist(link string) string {
 	if strings.Contains(link, "youtube.com") && strings.Contains(link,"&list") {
 		return strings.Split(link, "&list")[0]

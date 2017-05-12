@@ -24,8 +24,8 @@
               </div>
               <div class="top-bar-left">
                 <ul class="menu">
-                  {{$alias := .UserAlias}}
-                  <li><a href="/alias">{{.UserAlias}}</a></li>
+                  {{$alias := .ThisUserAlias}}
+                  <li><a href="/alias">{{.ThisUserAlias}}</a></li>
                 </ul>
               </div>
               <div class="top-bar-right">
@@ -80,37 +80,38 @@
 
             <h5>Now playing:</h5>
             <h5>
-              {{/*If there is no id, then this is an empty video so display Nothing playing*/}}
-              {{if .NowPlaying.ID}}
-                {{.NowPlaying.Title}} uploaded by {{.NowPlaying.Uploader}}
-              {{else}}
-                Nothing Playing
-              {{end}}
+				{{if .NowPlaying.Title}}
+					{{.NowPlaying.Title}} - {{.NowPlaying.Alias}}
+				{{else}}
+					Nothing
+				{{end}}
             </h5>
 
             {{/*For each bucket in playlist*/}}
-            {{range .Playlist}}
+            {{range .Buckets}}
               <div class="callout">
                 {{/*For each item in bucket*/}}
                 {{range .}}
                   <div class="row">
                     <div class="small-7 columns">
+					{{if .Ready}}<a href="/media/{{.RelativeFile}}">{{end}}
                       {{if .Title}}{{.Title}}{{else}}New video...{{end}}
+					{{if .Ready}}</a>{{end}}
                     </div>
 
                     <div class="small-2 columns">
                       {{if not .Ready}}
                         Downloading...
-                      {{else if eq .Uploader $alias}}
+                      {{else if and (eq .Alias $alias) (not .Played)}}
                         <form action="/remove" method="POST">
-                          <input type="hidden" name="video_id" value="{{.ID}}">
+                          <input type="hidden" name="video_id" value="{{.UUID}}">
                           <input type="submit" value="Remove" class="alert button tiny remove-button">
                         </form>
                       {{end}}
                     </div>
 
                     <div class="small-3 columns">
-                      {{.Uploader}}
+                      {{.Alias}}
                     </div>
                   </div>
                 {{end}}
@@ -125,7 +126,7 @@
 
     <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="/static/js/notify.min.js"></script>
-    <script type="text/javascript" src="/static/js/user.min.js"></script>
+	<!--<script type="text/javascript" src="/static/js/user.js"></script>-->
 
   </body>
 </html>
