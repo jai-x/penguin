@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"crypto/rand"
+	"path/filepath"
 )
 
 // Filled with commonly used convinience functions
@@ -39,6 +40,14 @@ func StripYoutubePlaylist(link string) string {
 	} else {
 		return link
 	}
+}
+
+func GetFileExt(file string) string {
+	return filepath.Ext(file)
+}
+
+func StripFileExt(file string) string {
+	return strings.TrimSuffix(file, filepath.Ext(file))
 }
 
 func PrintMasthead() {

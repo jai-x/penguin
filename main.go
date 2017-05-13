@@ -29,6 +29,6 @@ func main() {
 	config.Destroy()
 
 	help.PrintMasthead()
-	//go videoplayer.Start()
+//	go videoplayer.Start()
 	server.Run()
 }

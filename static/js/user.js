@@ -1,10 +1,10 @@
 $(document).ready(function() {
   link_form_override();
   upload_form_override();
-  // Loop
+  /* Loop
   setInterval(function() {
     update_playlist();
-  }, 1500);
+  }, 1500);*/
 });
 
 // Ajax override of form
@@ -29,7 +29,7 @@ function link_form_override() {
       $("#queuebutton").val("Go");
       $("#queueinput").val("");
       // Notify user from response data
-      $("#queue").notify(data.Message, data.Type);
+      $("#queue").notify(data.Response, data.Type);
     });
   });
 }
@@ -72,7 +72,7 @@ function upload_form_override() {
       $("#fileinput").val("");
       $("#meter").css("width", "0%");
       // Notify user from response data
-      $("#upload").notify(data.Message, data.Type);
+      $("#upload").notify(data.Response, data.Type);
     });
   });
 }

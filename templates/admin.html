@@ -35,6 +35,7 @@
 
             <h5>Now playing:</h5>
             <h5>
+				{{$npUUID := .NowPlaying.UUID}}
 				{{if .NowPlaying.Title}}
 					{{.NowPlaying.Title}} - {{.NowPlaying.Alias}}
 				{{else}}
@@ -49,7 +50,13 @@
               <div class="callout">
                 {{/*For each item in bucket*/}}
                 {{range .}}
-                  <div class="row">
+                  <div class="row
+				  	{{if eq $npUUID .UUID}}
+						callout success
+					{{else if .Played}}
+						callout secondary
+					{{end}}
+				  ">
                     <div class="small-6 columns">
 					{{if .Ready}}<a href="/media/{{.RelativeFile}}">{{end}}
                       {{if .Title}}{{.Title}}{{else}}New video...{{end}}

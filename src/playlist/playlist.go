@@ -71,7 +71,9 @@ func RemoveVideo(uuid string) {
 	for b, bucket := range buckets {
 		for v, vid := range bucket {
 			if vid.IpAddr == foundIp {
-				buckets[out][in] = buckets[b][v]
+				// Swap videos at index
+				buckets[out][in], buckets[b][v] = buckets[b][v], buckets[out][in]
+				// Store new index
 				out, in = b, v
 			}
 
@@ -261,6 +263,7 @@ func AdvancePlaylist() {
 
 	// Shift buckets up and create new last bucket
 	buckets = append(buckets[1:], make([]Video, 0))
+	log.Println("Video bucket cycle")
 
 	bucketLock.Unlock()
 	AdvancePlaylist()

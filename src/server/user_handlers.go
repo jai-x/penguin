@@ -102,11 +102,11 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Gen uuid and path for new file
 	uuid := help.GenUUID()
-	path := vidFolder + "/" + uuid
+	path := vidFolder + "/" + uuid + help.GetFileExt(header.Filename)
 
 	// Create file
-	out, err := os.Create(path)
-	defer out.Close()
+	newFile, err := os.Create(path)
+	defer newFile.Close()
 	if err != nil {
 		tmpl, _ := template.ParseFiles("templates/not_added.html")
 		tmpl.Execute(w, err.Error)
@@ -114,7 +114,7 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Write file
-	_, err = io.Copy(out, file)
+	_, err = io.Copy(newFile, file)
 	if err != nil {
 		tmpl, _ := template.ParseFiles("templates/not_added.html")
 		tmpl.Execute(w, err.Error)
@@ -124,7 +124,7 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 	// Struct for new video
 	newVid := playlist.Video{
 		UUID: uuid,
-		Title: header.Filename,
+		Title: help.StripFileExt(header.Filename),
 		File: path,
 		IpAddr: help.GetIP(req.RemoteAddr),
 		Alias: alias,

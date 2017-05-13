@@ -29,6 +29,9 @@ func Run() {
 	// Debug url endpoints
 	http.HandleFunc("/debug/list", debugListHandler)
 	http.HandleFunc("/debug/np", debugNPHandler)
+	// AJAX handlers
+	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
+	http.HandleFunc("/ajax/upload", ajaxUploadHandler)
 	// Admin url endpoints
 	http.HandleFunc("/admin/logout", adminLogoutHandler)
 	http.HandleFunc("/admin/login", adminLoginHandler)
