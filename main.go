@@ -1,17 +1,16 @@
 package main
 
-
 import (
-	"os"
 	"log"
+	"os"
 
-	"./src/youtubeDL"
 	"./src/admin"
-	"./src/playlist"
-	"./src/server"
 	"./src/config"
 	"./src/help"
+	"./src/playlist"
+	"./src/server"
 	"./src/videoplayer"
+	"./src/youtubeDL"
 )
 
 func main() {
@@ -24,11 +23,11 @@ func main() {
 	playlist.Init()
 	admin.Init()
 	youtubeDL.Init()
-	youtubeDL.Update()
+	//youtubeDL.Update()
 	videoplayer.Init()
 	config.Destroy()
 
 	help.PrintMasthead()
-//	go videoplayer.Start()
+	//	go videoplayer.Start()
 	server.Run()
 }

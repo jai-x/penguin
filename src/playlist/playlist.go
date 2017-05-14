@@ -1,17 +1,17 @@
-package	playlist
+package playlist
 
 import (
 	"log"
 	"sync"
 
-	"../help"
 	"../config"
+	"../help"
 	"../youtubeDL"
 )
 
 var (
 	bucketLock sync.RWMutex
-	buckets [][]Video
+	buckets    [][]Video
 	nowPlaying Video
 
 	bucketNumber int
@@ -26,13 +26,13 @@ func Init() {
 	aliasMap = make(map[string]string)
 
 	// Make list of lists
-	for b, _ := range buckets {
+	for b := range buckets {
 		buckets[b] = make([]Video, 0)
 	}
 }
 
-/* Check if a new video can be added from the specified ip address. 
- * Returns false if the number of videos form the ip is >= that the number of 
+/* Check if a new video can be added from the specified ip address.
+ * Returns false if the number of videos form the ip is >= that the number of
  * buckets. Returns true otherwise. */
 func CanAddVideo(addr string) bool {
 	ip := help.GetIP(addr)
@@ -57,7 +57,7 @@ func CanAddVideo(addr string) bool {
 	}
 }
 
-/* Removes a video from the playlist with the specified uuid. Will not affect 
+/* Removes a video from the playlist with the specified uuid. Will not affect
  * the playlist if a video doesnt exist. */
 func RemoveVideo(uuid string) {
 	bucketLock.Lock()
@@ -87,6 +87,7 @@ func RemoveVideo(uuid string) {
 	// Delete video bubbled to bottom
 	if foundIp != "" {
 		log.Println("Removed video:", buckets[out][in].Title)
+		stateChange()
 		buckets[out][in].DeleteFile()
 		buckets[out] = append(buckets[out][:in], buckets[out][in+1:]...)
 	}
@@ -94,7 +95,7 @@ func RemoveVideo(uuid string) {
 
 /* Returns true if the given address is the uploader of the video with the
  * specified uuid. If the video with the uuid does not exist, return false */
- func AddrOwnsVideo(addr, uuid string) bool {
+func AddrOwnsVideo(addr, uuid string) bool {
 	ip := help.GetIP(addr)
 
 	bucketLock.RLock()
@@ -108,10 +109,10 @@ func RemoveVideo(uuid string) {
 		}
 	}
 	return false
- }
+}
 
 /* Add empty video to playlist in teh first bucket that does not contain a video
- * from the same IP address. Then call the video downloader to download the 
+ * from the same IP address. Then call the video downloader to download the
  * specified link to populate the video struct with the given uuid */
 func AddVideoLink(addr, link string) {
 	uuid := help.GenUUID()
@@ -142,18 +143,19 @@ func AddVideoLink(addr, link string) {
 		}
 	}
 	log.Println("New link queued:", link)
-
+	stateChange()
 	go downloadVideo(uuid, link)
 }
 
-/* Download the title and video file for the specified link and populate the 
+/* Download the title and video file for the specified link and populate the
  * struct of the video with the given uuid in the playlist */
 func downloadVideo(uuid, link string) {
 	title, ok := youtubeDL.GetTitle(link)
 	if !ok {
 		log.Println("Cannot get video title for link:", link)
-		log.Println("Downlaod aborted")
+		log.Println("Download aborted")
 		RemoveVideo(uuid)
+		stateChange()
 		return
 	}
 
@@ -170,13 +172,16 @@ func downloadVideo(uuid, link string) {
 
 titleAdded:
 	bucketLock.Unlock()
+	stateChange()
+	log.Println("Got video title:", title)
 
 	// Download video with given uuid as filename
 	vidFilePath, err := youtubeDL.GetVideo(uuid, link)
 	if err {
 		log.Println("Cannot get video file:", title)
-		log.Println("Downlaod aborted")
+		log.Println("Download aborted")
 		RemoveVideo(uuid)
+		stateChange()
 		return
 	}
 
@@ -194,11 +199,13 @@ titleAdded:
 
 videoAdded:
 	bucketLock.Unlock()
+	stateChange()
 	log.Println("Added new video:", title)
 }
 
 // Add a pre-filled video struct to the playlist
 func AddVideoStruct(newVid Video) {
+
 	bucketLock.Lock()
 	defer bucketLock.Unlock()
 
@@ -216,9 +223,9 @@ func AddVideoStruct(newVid Video) {
 			break
 		}
 	}
+	stateChange()
 	log.Println("Added new video:", newVid.Title)
 }
-
 
 // Return entire bucket and now playing video
 func GetAllInfo() ([][]Video, Video) {
@@ -246,6 +253,7 @@ func AdvancePlaylist() {
 			if vid.Ready {
 				buckets[0][v].Played = true
 				nowPlaying = vid
+				stateChange()
 				return
 			} else {
 				nowPlaying = Video{}
@@ -266,6 +274,7 @@ func AdvancePlaylist() {
 	log.Println("Video bucket cycle")
 
 	bucketLock.Unlock()
+	stateChange()
 	AdvancePlaylist()
 }
 

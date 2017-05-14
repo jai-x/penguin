@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	port string
+	port      string
 	vidFolder string
 )
 
@@ -29,9 +29,11 @@ func Run() {
 	// Debug url endpoints
 	http.HandleFunc("/debug/list", debugListHandler)
 	http.HandleFunc("/debug/np", debugNPHandler)
+	http.HandleFunc("/debug/ip", debugIPHandler)
 	// AJAX handlers
 	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
 	http.HandleFunc("/ajax/upload", ajaxUploadHandler)
+	http.HandleFunc("/ajax/socket", testWebsocketHandler)
 	// Admin url endpoints
 	http.HandleFunc("/admin/logout", adminLogoutHandler)
 	http.HandleFunc("/admin/login", adminLoginHandler)

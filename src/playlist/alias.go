@@ -8,7 +8,7 @@ import (
 
 var (
 	aliasLock sync.RWMutex
-	aliasMap map[string]string
+	aliasMap  map[string]string
 )
 
 func GetAlias(addr string) (string, bool) {
@@ -44,4 +44,6 @@ func updateAliases() {
 			buckets[b][v].Alias, _ = aliasMap[vid.IpAddr]
 		}
 	}
+
+	stateChange()
 }

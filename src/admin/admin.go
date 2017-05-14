@@ -1,20 +1,20 @@
 package admin
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"log"
-	"time"
 	"sync"
-	"crypto/sha256"
+	"time"
 
-	"../help"
 	"../config"
+	"../help"
 )
 
 var (
 	// Map of admin ip addresses to session timeout token
 	adminLock sync.RWMutex
-	adminMap map[string]time.Time
+	adminMap  map[string]time.Time
 
 	// SHA256 hash of pwd
 	pwdHash string

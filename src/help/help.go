@@ -1,11 +1,11 @@
 package help
 
 import (
-	"log"
-	"fmt"
-	"strings"
 	"crypto/rand"
+	"fmt"
+	"log"
 	"path/filepath"
+	"strings"
 )
 
 // Filled with commonly used convinience functions
@@ -14,7 +14,11 @@ import (
 // This strips the port number, returning only the IP
 func GetIP(addr string) string {
 	in := strings.LastIndex(addr, ":")
-	return addr[:in]
+	addr = addr[:in]
+	if addr == "[::1]" {
+		return "localhost"
+	}
+	return addr
 }
 
 // Generate a pseudo random guid
@@ -35,7 +39,7 @@ func GenUUID() string {
 
 // Strip youtube playlist url parameters from a youtube video link
 func StripYoutubePlaylist(link string) string {
-	if strings.Contains(link, "youtube.com") && strings.Contains(link,"&list") {
+	if strings.Contains(link, "youtube.com") && strings.Contains(link, "&list") {
 		return strings.Split(link, "&list")[0]
 	} else {
 		return link

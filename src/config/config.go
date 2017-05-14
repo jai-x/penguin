@@ -1,10 +1,10 @@
 package config
 
 import (
-	"os"
-	"log"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 // Global config struct instance
@@ -15,17 +15,17 @@ var (
 // Config struct
 // The config.json file should mirror itself to this struct with given values
 type Configuration struct {
-	AdminPass string
-	VideoTimeout string
-	VideoPlayer string
+	AdminPass       string
+	VideoTimeout    string
+	VideoPlayer     string
 	VideoPlayerArgs string
-	MaxBuckets int
-	DownloadFolder string
-	YTDLBin string
-	YTDLArgs string
-	FFMPEGBin string
-	Port int
-	TemplateFolder string
+	MaxBuckets      int
+	DownloadFolder  string
+	YTDLBin         string
+	YTDLArgs        string
+	FFMPEGBin       string
+	Port            int
+	TemplateFolder  string
 }
 
 func Init(configPath string) {

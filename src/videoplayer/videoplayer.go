@@ -2,18 +2,18 @@ package videoplayer
 
 import (
 	"log"
-	"time"
-	"strings"
 	"os/exec"
+	"strings"
+	"time"
 
 	"../config"
 	"../playlist"
 )
 
 var (
-	playerExe string
+	playerExe  string
 	playerArgs []string
-	timeout time.Duration
+	timeout    time.Duration
 )
 
 func Init() {
@@ -21,9 +21,8 @@ func Init() {
 	playerExe = config.Config.VideoPlayer
 	// Arguments must be a slice of strings, whitespace separated
 	playerArgs = strings.Fields(config.Config.VideoPlayerArgs)
-	timeout, _= time.ParseDuration(config.Config.VideoTimeout)
+	timeout, _ = time.ParseDuration(config.Config.VideoTimeout)
 }
-
 
 func Start() {
 	log.Println("Video player service start")

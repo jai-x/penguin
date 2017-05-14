@@ -1,11 +1,29 @@
 $(document).ready(function() {
   link_form_override();
   upload_form_override();
+  playlist_refresh();
   /* Loop
   setInterval(function() {
     update_playlist();
   }, 1500);*/
 });
+
+function playlist_refresh() {
+  var loc = window.location;
+  var ws = new WebSocket("ws://" + loc.host + "/ajax/socket");
+  ws.onopen = function (event) {
+    console.log("Playlist socket connected");
+  }
+  ws.onerror = function (error) {
+    console.log(error);
+  }
+  ws.onclose = function (event) {
+    console.log("Playlist socket closed");
+  }
+  ws.onmessage = function (event) {
+    console.log("Getting message: " + event.data);
+  }
+}
 
 // Ajax override of form
 function link_form_override() {

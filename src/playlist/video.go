@@ -6,12 +6,12 @@ import (
 )
 
 type Video struct {
-	UUID string
-	Title string
-	File string
+	UUID   string
+	Title  string
+	File   string
 	IpAddr string
-	Alias string
-	Ready bool
+	Alias  string
+	Ready  bool
 	Played bool
 }
 

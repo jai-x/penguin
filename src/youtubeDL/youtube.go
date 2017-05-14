@@ -6,17 +6,17 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"../config"
 	"../help"
 )
 
 var (
-	executable string
+	executable     string
 	downloadFolder string
-	ffmpegExe string
+	ffmpegExe      string
 )
 
 func Init() {
@@ -88,7 +88,7 @@ func GetVideo(uuid, link string) (string, bool) {
 	dl.Run()
 
 	// Uses wildcard search for file extension of vid file with uuid name
-	vidPath, _ := filepath.Glob((downloadFolder+"/"+uuid+".*"))
+	vidPath, _ := filepath.Glob((downloadFolder + "/" + uuid + ".*"))
 
 	// Return first instance of file search xor error
 	if len(vidPath) > 0 {

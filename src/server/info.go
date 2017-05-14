@@ -5,8 +5,8 @@ import (
 )
 
 type PageInfo struct {
-	NowPlaying playlist.Video
-	Buckets [][]playlist.Video
+	NowPlaying    playlist.Video
+	Buckets       [][]playlist.Video
 	ThisUserAlias string
 }
 

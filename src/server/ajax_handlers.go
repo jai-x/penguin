@@ -1,10 +1,13 @@
 package server
 
 import (
-	"os"
-	"io"
-	"net/http"
 	"encoding/json"
+	"io"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/gorilla/websocket"
 
 	"../help"
 	"../playlist"
@@ -12,7 +15,7 @@ import (
 
 type Message struct {
 	Response string
-	Type string
+	Type     string
 }
 
 func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
@@ -104,12 +107,12 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Struct for new video
 	newVid := playlist.Video{
-		UUID: uuid,
-		Title: help.StripFileExt(header.Filename),
-		File: path,
+		UUID:   uuid,
+		Title:  help.StripFileExt(header.Filename),
+		File:   path,
 		IpAddr: help.GetIP(req.RemoteAddr),
-		Alias: alias,
-		Ready: true,
+		Alias:  alias,
+		Ready:  true,
 		Played: false,
 	}
 
@@ -117,4 +120,38 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	msg := Message{"File uploaded", "success"}
 	out.Encode(msg)
+}
+
+// Upgrader to upgrade connection from http to ws
+// Empty struct parameters to use default settings
+var upgrader = websocket.Upgrader{}
+
+func testWebsocketHandler(w http.ResponseWriter, req *http.Request) {
+	ip := help.GetIP(req.RemoteAddr)
+
+	conn, err := upgrader.Upgrade(w, req, nil)
+	if err != nil {
+		log.Println("Connection upgrade err:", err.Error())
+		return
+	}
+	defer conn.Close()
+
+	log.Println("New socket connection:", ip)
+
+	_, aliasExists := playlist.GetAlias(req.RemoteAddr)
+
+	if !aliasExists {
+		conn.WriteMessage(
+			websocket.TextMessage,
+			[]byte("No Alias set for this IP"),
+		)
+		return
+	}
+
+	for {
+		conn.WriteMessage(websocket.TextMessage, []byte("Waiting for something to happen..."))
+		playlist.WaitForChange()
+		conn.WriteMessage(websocket.TextMessage, []byte("Something happened!"))
+		log.Println("Message sent to socket:", ip)
+	}
 }

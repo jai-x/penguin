@@ -1,11 +1,11 @@
 package server
 
 import (
-	"os"
-	"io"
-	"strings"
-	"net/http"
 	"html/template"
+	"io"
+	"net/http"
+	"os"
+	"strings"
 
 	"../help"
 	"../playlist"
@@ -123,12 +123,12 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Struct for new video
 	newVid := playlist.Video{
-		UUID: uuid,
-		Title: help.StripFileExt(header.Filename),
-		File: path,
+		UUID:   uuid,
+		Title:  help.StripFileExt(header.Filename),
+		File:   path,
 		IpAddr: help.GetIP(req.RemoteAddr),
-		Alias: alias,
-		Ready: true,
+		Alias:  alias,
+		Ready:  true,
 		Played: false,
 	}
 
