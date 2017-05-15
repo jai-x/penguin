@@ -183,7 +183,6 @@ func ssePlaylistHandler(w http.ResponseWriter, req *http.Request) {
 			connected = false
 		}
 	}
-	close(event)
 }
 
 func sseAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
@@ -235,5 +234,4 @@ func sseAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
 			connected = false
 		}
 	}
-	close(event)
 }
