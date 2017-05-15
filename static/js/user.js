@@ -1,28 +1,23 @@
 $(document).ready(function() {
   link_form_override();
   upload_form_override();
-  playlist_refresh();
-  /* Loop
-  setInterval(function() {
-    update_playlist();
-  }, 1500);*/
+  sse_playlist();
 });
 
-function playlist_refresh() {
-  var loc = window.location;
-  var ws = new WebSocket("ws://" + loc.host + "/ajax/socket");
-  ws.onopen = function (event) {
-    console.log("Playlist socket connected");
-  }
-  ws.onerror = function (error) {
-    console.log(error);
-  }
-  ws.onclose = function (event) {
-    console.log("Playlist socket closed");
-  }
-  ws.onmessage = function (event) {
-    console.log("Getting message: " + event.data);
-  }
+function sse_playlist() {
+	if (typeof(EventSource) === "undefined") {
+		console.log("SSE Not supported on this browser");
+		return
+	}
+	var org = window.location.origin;
+	var source = new EventSource(org + "/sse/playlist");
+	source.onopen = function (e) {
+		console.log("SSE Connected");
+	};
+	source.onmessage = function (e) {
+		console.log("Playlist update");
+		$("#main").html(e.data);
+	};
 }
 
 // Ajax override of form
@@ -93,8 +88,4 @@ function upload_form_override() {
       $("#upload").notify(data.Response, data.Type);
     });
   });
-}
-
-function update_playlist() {
-  $("#main").load("/ajax/playlist");
 }
