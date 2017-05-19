@@ -1,26 +1,9 @@
 $(document).ready(function() {
   link_form_override();
   upload_form_override();
-  sse_playlist();
+  playlist_refresh();
 });
 
-function sse_playlist() {
-	if (typeof(EventSource) === "undefined") {
-		console.log("SSE Not supported on this browser");
-		return
-	}
-	var org = window.location.origin;
-	var source = new EventSource(org + "/sse/playlist");
-	source.onopen = function (e) {
-		console.log("SSE Connected");
-	};
-	source.onmessage = function (e) {
-		console.log("Playlist update");
-		$("#main").html(e.data);
-	};
-}
-
-// Ajax override of form
 function link_form_override() {
   $("#queue").submit(function(event) {
     // Stop the normal button behaviour
@@ -87,5 +70,15 @@ function upload_form_override() {
       // Notify user from response data
       $("#upload").notify(data.Response, data.Type);
     });
+  });
+}
+
+function playlist_refresh() {
+  $("#main").load("/ajax/playlist", function(response, status) {
+	  // Set timeout dependant on success or error of previous request
+	  const timeout = status === "success" ? 2000 : 10000;
+	  window.setTimeout(function() {
+		  playlist_refresh();
+	  }, timeout);
   });
 }

@@ -45,3 +45,14 @@ func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	http.Redirect(w, req, url("/admin"), http.StatusSeeOther)
 }
+
+func adminKillVideoHandler(w http.ResponseWriter, req *http.Request) {
+	if !ad.ValidSession(ip(req.RemoteAddr)) {
+		http.Redirect(w, req, url("/admin/login"), http.StatusFound)
+		return
+	}
+
+	// util.go
+	killPlayer()
+	http.Redirect(w, req, url("/admin"), http.StatusFound)
+}

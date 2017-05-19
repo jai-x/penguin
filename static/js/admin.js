@@ -1,19 +1,13 @@
 $(document).ready(function() {
-	sse_admin_playlist();
+	admin_playlist_refresh();
 });
 
-function sse_admin_playlist() {
-	if (typeof(EventSource) === "undefined") {
-		console.log("SSE Not supported on this browser");
-		return
-	}
-	var org = window.location.origin;
-	var source = new EventSource(org + "/sse/admin");
-	source.onopen = function (e) {
-		console.log("SSE Connected");
-	};
-	source.onmessage = function (e) {
-		console.log("Playlist update");
-		$("#main").html(e.data);
-	};
+function admin_playlist_refresh() {
+  $("#main").load("/ajax/admin/playlist", function(response, status) {
+	  // Set timeout dependant on success or error of previous request
+	  const timeout = status === "success" ? 2000 : 10000;
+	  window.setTimeout(function() {
+		  playlist_refresh();
+	  }, timeout);
+  });
 }

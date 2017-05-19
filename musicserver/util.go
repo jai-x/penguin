@@ -4,6 +4,8 @@ import (
 	"log"
 	"strings"
 	"path/filepath"
+	"os/exec"
+	"time"
 
 	"./playlist"
 	"./youtube"
@@ -69,4 +71,11 @@ func fileExt(file string) string {
 
 func stripFileExt(file string) string {
 	return strings.TrimSuffix(file, filepath.Ext(file))
+}
+
+func killPlayer() {
+	killPlayer := exec.Command("killall", "mpv")
+	killPlayer.Run()
+	// Wait for playlist to cycle
+	time.Sleep(500 * time.Millisecond)
 }

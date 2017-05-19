@@ -3,11 +3,13 @@ package musicserver
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"./admin"
 	"./alias"
 	"./playlist"
 	"./youtube"
+	"./player"
 )
 
 var (
@@ -16,6 +18,9 @@ var (
 	pl playlist.Playlist
 
 	vidFolder string = "/tmp/penguin"
+	vidPlayer string = "mpv"
+	vidArgs string = "-fs"
+	vidTimout string = "547s"
 )
 
 func Run() {
@@ -40,12 +45,35 @@ func Run() {
 	http.HandleFunc("/admin/login", adminLoginHandler)
 	http.HandleFunc("/admin/logout", adminLogoutHandler)
 	http.HandleFunc("/admin/remove", adminRemoveHandler)
+	// AJAX url endpoints
+	http.HandleFunc("/ajax/queue", ajaxQueueHandler)
+	http.HandleFunc("/ajax/upload", ajaxUploadHandler)
+	http.HandleFunc("/ajax/playlist", ajaxPlaylistHandler)
+	http.HandleFunc("/ajax/admin/playlist", ajaxPlaylistHandler)
+	// Debug url endpoints
+	http.HandleFunc("/debug/playlist", debugListHandler)
+	http.HandleFunc("/debug/ip", debugIPHandler)
 	// Serve website static files
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	// Serve downloaded media files
 	ms := http.FileServer(http.Dir(vidFolder))
 	http.Handle("/media/", http.StripPrefix("/media/", ms))
+
+	// Start video player
+	go func() {
+		for {
+			emptyVid := playlist.Video{}
+			newVid := pl.NextVideo()
+			if newVid == emptyVid {
+				log.Println(`(/'-')/ No Videos to Play \('-'\)`)
+				time.Sleep(2 * time.Second)
+			} else {
+				pl := player.NewVideoPlayer(vidPlayer, vidArgs, newVid.File, vidTimout)
+				pl.Play()
+			}
+		}
+	}()
 
 	// Start server
 	log.Println("Serving on localhost:8080")

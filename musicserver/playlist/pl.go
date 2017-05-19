@@ -173,9 +173,9 @@ func (p *Playlist) NextVideo() Video {
 				// if this is not the first Video in sublist.
 				if v > 0 {
 					p.playlist[s][v-1].NP = false
-					p.playlist[s][v-1].Played = true
 				}
 				p.playlist[s][v].NP = true
+				p.playlist[s][v].Played = true
 
 				p.mu.Unlock()
 				return p.playlist[s][v]

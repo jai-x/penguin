@@ -5,8 +5,6 @@ import (
 	"os/exec"
 	"strings"
 	"time"
-
-	"../playlist"
 )
 
 type VideoPlayer struct {
@@ -19,7 +17,8 @@ func NewVideoPlayer(exe, args, filepath, timeout string) VideoPlayer {
 	out := VideoPlayer{}
 	out.playerExe = exe
 	out.playerArgs = append(strings.Fields(args), filepath)
-	out.timout, err = time.ParseDuratio(timeout)
+	var err error
+	out.timeout, err = time.ParseDuration(timeout)
 	if err != nil {
 		log.Fatalln("NewVideoPlayer error:", err.Error())
 	}
@@ -28,7 +27,7 @@ func NewVideoPlayer(exe, args, filepath, timeout string) VideoPlayer {
 
 func (v *VideoPlayer) Play() {
 	log.Println("Video player started")
-	p := exec.Command(v.playerExe, v.playerArgs)
+	p := exec.Command(v.playerExe, v.playerArgs...)
 	errChan := make(chan error)
 	p.Start()
 
@@ -40,7 +39,7 @@ func (v *VideoPlayer) Play() {
 
 	// Select first non-blocking channel
 	select {
-	case time.After(v.timeout):
+	case <-time.After(v.timeout):
 		log.Println("Video player timeout")
 		err := p.Process.Kill()
 		if err != nil {
@@ -50,7 +49,7 @@ func (v *VideoPlayer) Play() {
 		if err != nil {
 			log.Println("Video player exited with error:", err.Error())
 		} else {
-			log.Prinln("Video player exited with no error")
+			log.Println("Video player exited with no error")
 		}
 	}
 }
