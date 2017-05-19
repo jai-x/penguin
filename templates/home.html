@@ -24,8 +24,8 @@
               </div>
               <div class="top-bar-left">
                 <ul class="menu">
-                  {{$alias := .ThisUserAlias}}
-                  <li><a href="/alias">{{.ThisUserAlias}}</a></li>
+                  {{$alias := .UserAlias}}
+                  <li><a href="/alias">{{.UserAlias}}</a></li>
                 </ul>
               </div>
               <div class="top-bar-right">
@@ -78,32 +78,24 @@
         <section class="row">
           <div class="small-12 columns" id="main">
 
-            <h5>Now playing:</h5>
-            <h5>
-				{{$npUUID := .NowPlaying.UUID}}
-				{{if .NowPlaying.Title}}
-					{{.NowPlaying.Title}} - {{.NowPlaying.Alias}}
-				{{else}}
-					Nothing
-				{{end}}
-            </h5>
-
-            {{/*For each bucket in playlist*/}}
-            {{range .Buckets}}
+            {{range .Playlist}}
               <div class="callout">
-                {{/*For each item in bucket*/}}
                 {{range .}}
-                  <div class="row
-				  	{{if eq $npUUID .UUID}}
-						callout success
-					{{else if .Played}}
-						callout secondary
-					{{end}}
-				  ">
+
+				  {{if .NP}}
+                  <div class="vid-np row">
+                  {{else if .Played}}
+				  <div class="vid-done row">
+                  {{else}}
+				  <div class="row">
+                  {{end}}
+
                     <div class="small-7 columns">
-					{{if .Ready}}<a href="/media/{{.RelativeFile}}" target="_blank">{{end}}
-                      {{if .Title}}{{.Title}}{{else}}New video...{{end}}
-					{{if .Ready}}</a>{{end}}
+					  {{if .Ready}}
+					    <a href="/media/{{.RelativeFile}}">{{.Title}}</a>
+					  {{else}}
+                        {{.Title}}
+					  {{end}}
                     </div>
 
                     <div class="small-2 columns">
@@ -133,7 +125,7 @@
 
     <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="/static/js/notify.min.js"></script>
-	<script type="text/javascript" src="/static/js/user.js"></script>
+	<!--<script type="text/javascript" src="/static/js/user.js"></script>-->
 
   </body>
 </html>

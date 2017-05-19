@@ -1,30 +1,24 @@
-{{$alias := .ThisUserAlias}}
-<h5>Now playing:</h5>
-<h5>
-	{{$npUUID := .NowPlaying.UUID}}
-	{{if .NowPlaying.Title}}
-		{{.NowPlaying.Title}} - {{.NowPlaying.Alias}}
-	{{else}}
-		Nothing
-	{{end}}
-</h5>
+{{$alias := .UserAlias}}
 
-{{/*For each bucket in playlist*/}}
-{{range .Buckets}}
+
+{{range .Playlist}}
   <div class="callout">
-    {{/*For each item in bucket*/}}
     {{range .}}
-      <div class="row
-	  	{{if eq $npUUID .UUID}}
-			callout success
-		{{else if .Played}}
-			callout secondary
-		{{end}}
-	  ">
+
+	  {{if .NP}}
+      <div class="vid-np row">
+      {{else if .Played}}
+	  <div class="vid-done row">
+      {{else}}
+	  <div class="row">
+      {{end}}
+
         <div class="small-7 columns">
-		{{if .Ready}}<a href="/media/{{.RelativeFile}}" target="_blank">{{end}}
-          {{if .Title}}{{.Title}}{{else}}New video...{{end}}
-		{{if .Ready}}</a>{{end}}
+		  {{if .Ready}}
+		    <a href="/media/{{.RelativeFile}}">{{.Title}}</a>
+		  {{else}}
+            {{.Title}}
+		  {{end}}
         </div>
 
         <div class="small-2 columns">

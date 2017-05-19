@@ -12,3 +12,11 @@
 	margin-bottom: auto;
 	margin-left: 0.5rem;
 }
+
+.vid-done {
+	opacity: 0.3;
+}
+
+.vid-np {
+	border: 1px solid green;
+}

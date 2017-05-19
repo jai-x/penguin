@@ -55,10 +55,10 @@ func StripFileExt(file string) string {
 }
 
 func PrintMasthead() {
-	fmt.Println("                              _            ")
-	fmt.Println(" _ __   ___ _ __   __ _ _   _(_)_ __      ")
-	fmt.Println("| '_ \\ / _ \\ '_ \\ / _` | | | | | '_ \\ ")
-	fmt.Println("| |_) |  __/ | | | (_| | |_| | | | | |    ")
-	fmt.Println("| .__/ \\___|_| |_|\\__, |\\__,_|_|_| |_| ")
-	fmt.Println("|_|               |___/                   \n")
+	fmt.Println(`                              _       `)
+	fmt.Println(` _ __   ___ _ __   __ _ _   _(_)_ __  `)
+	fmt.Println(`| '_ \ / _ \ '_ \ / _' | | | | | '_ \ `)
+	fmt.Println(`| |_) |  __/ | | | (_| | |_| | | | | |`)
+	fmt.Println(`| .__/ \___|_| |_|\__, |\__,_|_|_| |_|`)
+	fmt.Println(`|_|               |___/               `)
 }

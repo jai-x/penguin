@@ -1,19 +1,19 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"fmt"
-	"html/template"
 	"strings"
-	"bytes"
 
+	"../admin"
 	"../help"
 	"../playlist"
-	"../admin"
 )
 
 type AJAXMessage struct {
@@ -130,7 +130,7 @@ func sseSend(w http.ResponseWriter, message string) {
 	// Have to prefix all newlines with "data: " to send multline strings
 	message = strings.Replace(message, "\n", "\ndata: ", -1)
 	// Must prefix with "data: " and postfix with double newline
-	fmt.Fprintf(w, "data: " + message + "\n\n")
+	fmt.Fprintf(w, "data: "+message+"\n\n")
 }
 
 func ssePlaylistHandler(w http.ResponseWriter, req *http.Request) {

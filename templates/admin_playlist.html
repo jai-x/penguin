@@ -1,49 +1,35 @@
-<h5>Now playing:</h5>
-<h5>
-	{{$npUUID := .NowPlaying.UUID}}
-	{{if .NowPlaying.Title}}
-		{{.NowPlaying.Title}} - {{.NowPlaying.Alias}}
-	{{else}}
-		Nothing
-	{{end}}
-</h5>
-
-<hr>
-
-{{/*For each bucket in playlist*/}}
-{{range .Buckets}}
+{{range .Playlist}}
   <div class="callout">
-    {{/*For each item in bucket*/}}
     {{range .}}
-      <div class="row
-	  	{{if eq $npUUID .UUID}}
-			callout success
-		{{else if .Played}}
-			callout secondary
-		{{end}}
-	  ">
-        <div class="small-6 columns">
-		{{if .Ready}}<a href="/media/{{.RelativeFile}}" target="_blank">{{end}}
-          {{if .Title}}{{.Title}}{{else}}New video...{{end}}
-		{{if .Ready}}</a>{{end}}
-        </div>
 
-        <div class="small-2 columns">
-          {{.IpAddr}}
+	  {{if .NP}}
+      <div class="vid-np row">
+      {{else if .Played}}
+	  <div class="vid-done row">
+      {{else}}
+	  <div class="row">
+      {{end}}
+
+        <div class="small-7 columns">
+		  {{if .Ready}}
+		    <a href="/media/{{.RelativeFile}}">{{.Title}}</a>
+		  {{else}}
+            {{.Title}}
+		  {{end}}
         </div>
 
         <div class="small-2 columns">
           {{if not .Ready}}
-          Downloading...
-          {{else if not .Played}}
-          <form action="/admin/remove" method="POST">
-            <input type="hidden" name="video_id" value="{{.UUID}}">
-            <input type="submit" value="Remove" class="alert button tiny remove-button">
-          </form>
+            Downloading...
+          {{else if and (not .NP) (not .Played)}}
+            <form action="/admin/remove" method="POST">
+              <input type="hidden" name="video_id" value="{{.UUID}}">
+              <input type="submit" value="Remove" class="alert button tiny remove-button">
+            </form>
           {{end}}
         </div>
 
-        <div class="small-2 columns">
+        <div class="small-3 columns">
           {{.Alias}}
         </div>
       </div>
