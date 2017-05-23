@@ -1,7 +1,6 @@
 package musicserver
 
 import (
-	"html/template"
 	"net/http"
 	"strings"
 	"os"
@@ -16,15 +15,12 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, url("/alias"), http.StatusSeeOther)
 		return
 	}
-
-	tmpl, _ := template.ParseFiles("./templates/home.html")
-	tmpl.Execute(w, newPageInfo(req.RemoteAddr))
+	tl.Render(w, "home", newPlaylistInfo(req.RemoteAddr))
 }
 
 func aliasHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		tmpl, _ := template.ParseFiles("./templates/alias.html")
-		tmpl.Execute(w, nil)
+		tl.Render(w, "alias", nil)
 		return
 	}
 
@@ -56,8 +52,7 @@ func queueVideoHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if !pl.Available(ip) {
-		tmpl, _ := template.ParseFiles("./templates/not_added.html")
-		tmpl.Execute(w, "You have the maxium amount of videos queued.")
+		tl.Render(w, "not_added", "You have the maxium amount of videos queued.")
 		return
 	}
 
@@ -66,8 +61,7 @@ func queueVideoHandler(w http.ResponseWriter, req *http.Request) {
 	pl.AddVideo(newVideo)
 	go downloadVideo(newLink, newVideo.UUID)
 
-	tmpl, _ := template.ParseFiles("./templates/added.html")
-	tmpl.Execute(w, nil)
+	tl.Render(w, "added", nil)
 }
 
 func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
@@ -81,8 +75,7 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 	file, header, err := req.FormFile("video_file")
 	defer file.Close()
 	if err != nil {
-		tmpl, _ := template.ParseFiles("templates/not_added.html")
-		tmpl.Execute(w, "Cannot parse uploaded file")
+		tl.Render(w, "not_added", "Cannot parse uploaded file")
 		return
 	}
 
@@ -95,8 +88,7 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if !pl.Available(ip) {
-		tmpl, _ := template.ParseFiles("./templates/not_added.html")
-		tmpl.Execute(w, "You have the maximum amount of videos queued")
+		tl.Render(w, "not_added", "You have the maximum amount of videos queued")
 		return
 	}
 
@@ -108,16 +100,14 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 	newFile, err := os.Create(newPath)
 	defer newFile.Close()
 	if err != nil {
-		tmpl, _ := template.ParseFiles("./templates/not_added.html")
-		tmpl.Execute(w, err.Error())
+		tl.Render(w, "not_added", err.Error())
 		return
 	}
 
 	// Write file
 	_, err = io.Copy(newFile, file)
 	if err != nil {
-		tmpl, _ := template.ParseFiles("./templates/not_added.html")
-		tmpl.Execute(w, err.Error())
+		tl.Render(w, "not_added", err.Error())
 		return
 	}
 
@@ -129,8 +119,7 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 	// Add to playlist
 	pl.AddVideo(newVid)
 
-	tmpl, _ := template.ParseFiles("templates/added.html")
-	tmpl.Execute(w, nil)
+	tl.Render(w, "added", nil)
 }
 
 func userRemoveHandler(w http.ResponseWriter, req *http.Request) {

@@ -4,8 +4,8 @@
   <head>
     <meta charset="utf-8">
     <title>Set Alias</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-    <link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
+	<link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
   </head>
 
   <body>
@@ -16,7 +16,7 @@
           <div class="row">
             <div class="small-12 columns">
               <div class="top-bar-title">
-                <a href="/">
+				  <a href="{{serverDomain}}/">
                   <strong>
                     UWCS <span class="accent">Music Server</span>
                   </strong>
@@ -24,7 +24,7 @@
               </div>
               <div class="top-bar-right">
                 <ul class="menu">
-                  <li><a href="/admin">Admin</a></li>
+					<li><a href="{{serverDomain}}/admin">Admin</a></li>
                 </ul>
               </div>
             </div>
@@ -34,7 +34,7 @@
         <section class="row margin-top-2x">
           <div class="small-6 small-push-3 columns">
             <h4>Please set your alias</h4>
-            <form action="/alias" enctype="multipart/form-data" method="POST">
+            <form action="{{serverDomain}}/alias" enctype="multipart/form-data" method="POST">
               <div class="input-group">
                 <span class="input-group-label">Alias:</span>
                 <input type="text" name="alias_value" class="input-group-field" placeholder="FalcoMaster3000" required maxlength="40" autofocus>

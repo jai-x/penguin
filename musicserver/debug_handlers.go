@@ -9,7 +9,7 @@ import (
 func debugListHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	info := newPageInfo(req.RemoteAddr)
+	info := newPlaylistInfo(req.RemoteAddr)
 	enc := json.NewEncoder(w)
 	// To pretty print
 	enc.SetIndent("", "\t")
@@ -28,7 +28,7 @@ func debugIPHandler(w http.ResponseWriter, req *http.Request) {
 
 	alias, _ := al.Alias(ip)
 
-	// Anonymouse struct to contain he information
+	// Anonymouse struct to contain the information
 	msg := struct {
 		RawAddress string
 		IP         string

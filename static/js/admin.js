@@ -7,7 +7,7 @@ function admin_playlist_refresh() {
 	  // Set timeout dependant on success or error of previous request
 	  const timeout = status === "success" ? 2000 : 10000;
 	  window.setTimeout(function() {
-		  playlist_refresh();
+		  admin_playlist_refresh();
 	  }, timeout);
   });
 }

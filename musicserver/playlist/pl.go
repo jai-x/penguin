@@ -29,6 +29,32 @@ func NewPlaylist(b int) Playlist {
 	return out
 }
 
+// Will alter change the number of sublists to the given value. If the new 
+// sublist value is smaller than the current number of sublist, the trailing 
+// sublists and their Videos will be deleted
+func (p *Playlist) SetSublistCount(b int) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if b < 1 {
+		b = 4 // Default
+	}
+
+	// Make new playlist
+	newPlaylist := make([][]Video, b)
+
+	// Copy from existing playlist or create new sublist 
+	for i := range newPlaylist {
+		if i < len(p.playlist) {
+			newPlaylist[i] = p.playlist[i]
+		} else {
+			newPlaylist[i] = make([]Video, 0)
+		}
+	}
+	// Set 
+	p.playlist = newPlaylist
+}
+
 // Returns true or false if the Playlist is available to take a new Video
 // struct from the given IP address.
 func (p *Playlist) Available(ip string) bool {
@@ -98,8 +124,9 @@ func (p *Playlist) RemoveVideo(remUUID string) {
 		}
 	}
 
+	// Delete video file
 	p.playlist[out][in].DeleteFile()
-	// Slice trick to delete Video while preserving sublist order.
+	// Slice trick to remove Video struct from list while preserving sublist order.
 	p.playlist[out] = append(p.playlist[out][:in], p.playlist[out][in+1:]...)
 }
 
@@ -166,26 +193,29 @@ func (p *Playlist) NextVideo() Video {
 	}
 
 	// Get unplayed Video, if available, from first sublist.
-	for s, subl := range p.playlist {
-		for v, vid := range subl {
-			if !vid.Played && vid.Ready {
-				// Unset previous Video struct as now playing and set as Played
-				// if this is not the first Video in sublist.
-				if v > 0 {
-					p.playlist[s][v-1].NP = false
-				}
-				p.playlist[s][v].NP = true
-				p.playlist[s][v].Played = true
-
+	for v, vid := range p.playlist[0] {
+		if vid.Played {
+			p.playlist[0][v].NP = false
+		// Not played
+		} else {
+			if !vid.Ready {
+				// Non-ready videos are still downloading
+				// Wait for them to complete by returning empty
 				p.mu.Unlock()
-				return p.playlist[s][v]
+				return Video{}
 			}
+
+			p.playlist[0][v].NP = true
+			p.playlist[0][v].Played = true
+
+			p.mu.Unlock()
+			return p.playlist[0][v]
 		}
 	}
 
 	// Delete all videos from the completed top bucket
-	for _, vid := range p.playlist[0] {
-		vid.DeleteFile()
+	for v := range p.playlist[0] {
+		p.playlist[0][v].DeleteFile()
 	}
 
 	// Propagate sublists and append new empty Video sublist to end.

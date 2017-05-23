@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	// Default variables
+	// Default use set variables
 
 	// Path to youtube-dl executable
 	ytExe string = "youtube-dl"

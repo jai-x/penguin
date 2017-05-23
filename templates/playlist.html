@@ -5,16 +5,17 @@
     {{range .}}
 
 	  {{if .NP}}
-      <div class="vid-np row">
+      <div class="vid np row">
+        <div class="np-pop">Now Playing</div>
       {{else if .Played}}
-	  <div class="vid-done row">
+	  <div class="vid done row">
       {{else}}
-	  <div class="row">
+	  <div class="vid row">
       {{end}}
 
         <div class="small-7 columns">
 		  {{if .Ready}}
-		    <a href="/media/{{.RelativeFile}}">{{.Title}}</a>
+		    <a href="{{serverDomain}}/media/{{.RelativeFile}}" download>{{.Title}}</a>
 		  {{else}}
             {{.Title}}
 		  {{end}}
@@ -24,7 +25,7 @@
           {{if not .Ready}}
             Downloading...
           {{else if and (eq .Alias $alias) (not .Played)}}
-            <form action="/remove" method="POST">
+            <form action="{{serverDomain}}/remove" method="POST">
               <input type="hidden" name="video_id" value="{{.UUID}}">
               <input type="submit" value="Remove" class="alert button tiny remove-button">
             </form>

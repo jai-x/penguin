@@ -3,8 +3,8 @@
 
   <head>
     <title>Admin Login</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
+    <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
   </head>
 
   <body>
@@ -15,7 +15,7 @@
           <div class="row">
             <div class="small-12 columns">
               <div class="top-bar-title">
-                <a href="/">
+                <a href="{{serverDomain}}/">
                   <strong>
                     UWCS <span class="accent">Music Server</span>
                   </strong>
@@ -28,7 +28,9 @@
         <section class="row margin-top-2x">
           <div class="small-6 small-push-3 columns">
             <h4>Please enter the admin password</h4>
-            <form action="/admin/login" method="POST">
+
+            <form action="{{serverDomain}}/admin/login" method="POST">
+
               <div class="input-group">
                 <span class="input-group-label">Password:</span>
                 <input type="password" class="input-group-field" name="admin_pwd" required autofocus>
@@ -36,6 +38,7 @@
                   <input type="submit" value="Go" class="button">
                 </div>
               </div>
+
             </form>
           </div>
         </section>

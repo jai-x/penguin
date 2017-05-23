@@ -13,10 +13,28 @@
 	margin-left: 0.5rem;
 }
 
-.vid-done {
+.vid {
+	margin-top: 0.25rem !important;
+	margin-bottom: 0.25rem;
+}
+
+.vid.done {
 	opacity: 0.3;
 }
 
-.vid-np {
-	border: 1px solid green;
+.vid.np {
+	/*border: 1px solid green;*/
+}
+
+.np-pop {
+	position: absolute;
+	left: -5.2rem;
+	background: #263238;
+	color: white;
+	border-radius: 5px;
+	padding: 2px;
+}
+
+.progress {
+	margin-bottom: 0 !important;
 }

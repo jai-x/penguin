@@ -1,14 +1,13 @@
 package musicserver
 
 import (
-	"html/template"
 	"net/http"
+	"time"
 )
 
 func adminHandler(w http.ResponseWriter, req *http.Request) {
 	if ad.ValidSession(ip(req.RemoteAddr)) {
-		tmpl, _ := template.ParseFiles("./templates/admin.html")
-		tmpl.Execute(w, newPageInfo(req.RemoteAddr))
+		tl.Render(w, "admin", newPlaylistInfo(req.RemoteAddr))
 	} else {
 		http.Redirect(w, req, url("/admin/login"), http.StatusFound)
 	}
@@ -16,8 +15,7 @@ func adminHandler(w http.ResponseWriter, req *http.Request) {
 
 func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		tmpl, _ := template.ParseFiles("./templates/admin_login.html")
-		tmpl.Execute(w, nil)
+		tl.Render(w, "admin_login", nil)
 		return
 	}
 
@@ -27,8 +25,7 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, url("/admin"), http.StatusSeeOther)
 		return
 	} else {
-		tmpl, _ := template.ParseFiles("./templates/admin_bad_login.html")
-		tmpl.Execute(w, nil)
+		tl.Render(w, "admin_bad_login", nil)
 		return
 	}
 }
@@ -52,7 +49,9 @@ func adminKillVideoHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// util.go
-	killPlayer()
+	vd.End()
+	// Wait for playlist to cycle
+	time.Sleep(500 * time.Millisecond)
+
 	http.Redirect(w, req, url("/admin"), http.StatusFound)
 }

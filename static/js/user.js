@@ -1,8 +1,19 @@
 $(document).ready(function() {
+  add_progress_bar();
   link_form_override();
   upload_form_override();
   playlist_refresh();
 });
+
+function add_progress_bar() {
+	$("#vid-input").append(progress_bar_html);
+}
+
+var progress_bar_html = `
+  <div class="progress" role="progressbar" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-meter" id="meter" style="width: 0%"></div>
+  </div>
+`;
 
 function link_form_override() {
   $("#queue").submit(function(event) {

@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"html/template"
 
 	"./playlist"
 )
@@ -119,15 +118,11 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func ajaxPlaylistHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "text/html")
-	info := newPageInfo(req.RemoteAddr)
-	tmpl, _ := template.ParseFiles("./templates/playlist.html")
-	tmpl.Execute(w, info)
+	info := newPlaylistInfo(req.RemoteAddr)
+	tl.Render(w, "playlist", info)
 }
 
 func ajaxAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "text/html")
-	info := newPageInfo(req.RemoteAddr)
-	tmpl, _ := template.ParseFiles("./templates/admin_playlist.html")
-	tmpl.Execute(w, info)
+	info := newPlaylistInfo(req.RemoteAddr)
+	tl.Render(w, "admin_playlist", info)
 }

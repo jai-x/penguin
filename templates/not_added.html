@@ -4,8 +4,8 @@
   <head>
     <meta charset="utf-8">
     <title>Video Not Added</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
+    <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
   </head>
 
   <body>
@@ -16,7 +16,7 @@
           <div class="row">
             <div class="small-12 columns">
               <div class="top-bar-title">
-                <a href="/">
+                <a href="{{serverDomain}}/">
                   <strong>
                     UWCS <span class="accent">Music Server</span>
                   </strong>
@@ -24,7 +24,7 @@
               </div>
               <div class="top-bar-right">
                 <ul class="menu">
-                  <li><a href="/admin">Admin</a></li>
+                  <li><a href="{{serverDomain}}/admin">Admin</a></li>
                 </ul>
               </div>
             </div>
@@ -35,7 +35,7 @@
           <div class="small-6 small-push-3 columns">
             <h4>Video not added</h4>
 			<p>{{.}}</p>
-            <a href="/" class="button alert float-center">Back</a>
+            <a href="{{serverDomain}}/" class="button alert float-center">Back</a>
           </div>
         </section>
 

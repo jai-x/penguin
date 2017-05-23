@@ -4,31 +4,25 @@ import (
 	"log"
 	"strings"
 	"path/filepath"
-	"os/exec"
-	"time"
 
 	"./playlist"
 	"./youtube"
 )
 
-var (
-	domain string = ""
-)
-
-type pageInfo struct {
+type playlistInfo struct {
 	UserAlias string
 	Playlist  [][]playlist.Video
 }
 
-func newPageInfo(addr string) pageInfo {
+func newPlaylistInfo(addr string) playlistInfo {
 	ip := ip(addr)
 	alias, _ := al.Alias(ip)
-	out := pageInfo{alias, pl.Playlist()}
+	out := playlistInfo{alias, pl.Playlist()}
 	return out
 }
 
 func url(relative string) string {
-	return domain + relative
+	return serverDomain + relative
 }
 
 func downloadVideo(newLink, uuid string) {
@@ -65,17 +59,12 @@ func ip(addr string) string {
 	return ip
 }
 
+// Return only file extension including the dot
 func fileExt(file string) string {
 	return filepath.Ext(file)
 }
 
+// Remove file extension 
 func stripFileExt(file string) string {
 	return strings.TrimSuffix(file, filepath.Ext(file))
-}
-
-func killPlayer() {
-	killPlayer := exec.Command("killall", "mpv")
-	killPlayer.Run()
-	// Wait for playlist to cycle
-	time.Sleep(500 * time.Millisecond)
 }

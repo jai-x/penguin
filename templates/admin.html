@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>Music Server Admin Page</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
+    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/custom.css">
+    <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
   </head>
   <body>
 
@@ -15,7 +16,7 @@
           <div class="row">
             <div class="small-12 columns">
               <div class="top-bar-title">
-                <a href="/">
+                <a href="{{serverDomain}}/">
                   <strong>
                     UWCS <span class="accent">Music Server</span> Admin
                   </strong>
@@ -23,7 +24,7 @@
               </div>
               <div class="top-bar-right">
                 <ul class="menu">
-                  <li><a href="/admin/logout">Logout</a></li>
+                  <li><a href="{{serverDomain}}/admin/logout">Logout</a></li>
                 </ul>
               </div>
             </div>
@@ -38,16 +39,18 @@
                 {{range .}}
 
 				  {{if .NP}}
-                  <div class="vid-np row">
+                  <div class="vid np row">
+                    <div class="np-pop">Now Playing</div>
                   {{else if .Played}}
-				  <div class="vid-done row">
+				  <div class="vid done row">
                   {{else}}
-				  <div class="row">
+				  <div class="vid row">
                   {{end}}
 
+	
                     <div class="small-7 columns">
 					  {{if .Ready}}
-					    <a href="/media/{{.RelativeFile}}">{{.Title}}</a>
+					    <a href="{{serverDomain}}/media/{{.RelativeFile}}" download>{{.Title}}</a>
 					  {{else}}
                         {{.Title}}
 					  {{end}}
@@ -56,8 +59,12 @@
                     <div class="small-2 columns">
                       {{if not .Ready}}
                         Downloading...
-                      {{else if and (not .NP) (not .Played)}}
-                        <form action="/admin/remove" method="POST">
+					  {{else if .NP}}
+                        <form action="{{serverDomain}}/admin/kill">
+                          <input type="submit" value="Stop" class="alert button tiny remove-button">
+                        </form>
+                      {{else if not .Played}}
+                        <form action="{{serverDomain}}/admin/remove" method="POST">
                           <input type="hidden" name="video_id" value="{{.UUID}}">
                           <input type="submit" value="Remove" class="alert button tiny remove-button">
                         </form>
@@ -78,8 +85,8 @@
       </div>
     </div>
 
-    <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
-	<script type="text/javascript" src="/static/js/admin.js"></script>
+    <script type="text/javascript" src="{{serverDomain}}/static/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="{{serverDomain}}/static/js/admin.js"></script>
 
   </body>
 </html>
