@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"flag"
 
 	"./admin"
 	"./alias"
@@ -78,8 +79,14 @@ func Run() {
 	ms := http.FileServer(http.Dir(vidFolder))
 	http.Handle("/media/", http.StripPrefix("/media/", ms))
 
+	var noPlayer bool
+	flag.BoolVar(&noPlayer, "noplayer", false, "Disables video playback")
+	flag.Parse()
+
 	// Start video player
-	//go videoPlayer()
+	if !noPlayer {
+		go videoPlayer()
+	}
 
 	// Start server
 	log.Println("Serving on localhost:8080")

@@ -1,5 +1,10 @@
 .remove-button {
-	margin-bottom: 0;
+	display: inline-flex;
+	color: white;
+	background: #ff1744;
+	border-radius: 5px;
+	padding: 3px;
+	line-height: unset;
 }
 
 .upload-box {
@@ -27,14 +32,17 @@
 }
 
 .np-pop {
-	position: absolute;
-	left: -5.2rem;
+	display: inline-flex;
 	background: #263238;
 	color: white;
 	border-radius: 5px;
-	padding: 2px;
+	padding: 3px;
 }
 
 .progress {
 	margin-bottom: 0 !important;
+}
+
+.wordwrap {
+	overflow-wrap: break-word;
 }
