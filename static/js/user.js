@@ -1,7 +1,7 @@
 var domain;
 
 $(document).ready(function() {
-	domain = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
+	domain = window.location.href;
 	// Form overrides to callback functions
     $("#queue").submit(ajax_queue);
     $("#upload").submit(ajax_upload);
