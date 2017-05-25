@@ -78,7 +78,7 @@ func (d *Downloader) Title() (string, error) {
 // Downloads video and returns filepath as string to downloaded video file.
 func (d *Downloader) Filepath() (string, error) {
 	// Use output template to download to folder and set filename as UUID
-	outputPath := dlPath + "/" + d.uuid
+	outputPath := dlPath + "/" + d.uuid + `.%(ext)s`
 	args := []string{"-o", outputPath, "--no-playlist"}
 
 	// Optionally apply ffmpeg argument if variable is not empty
@@ -97,12 +97,12 @@ func (d *Downloader) Filepath() (string, error) {
 	}
 
 	// The file extension for the new video is unknown, so perform a search of
-	// the filename using a wildcard for the extension.
-	res, _ := filepath.Glob(outputPath + ".*")
+	// the filename using a wildcard for the extension, if any.
+	res, _ := filepath.Glob(dlPath + "/" + d.uuid +  "*")
 
 	// No search results
 	if len(res) < 1 {
-		return "", errors.New("Cannot find file, unknown extension: " + d.uuid)
+		return "", errors.New("Cannot find downloaded video file: " + d.uuid)
 	}
 
 	// Return first search result

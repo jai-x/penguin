@@ -2,3 +2,5 @@
 penguin
 # Config file
 config.json
+# Vim files
+*.swp

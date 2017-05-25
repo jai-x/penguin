@@ -27,7 +27,7 @@ var (
 	vidArgs      string = "-fs"
 	vidTimout    string = "547s"
 	adminPass    string = "password"
-	serverDomain string = ""
+	serverDomain string = "http://localhost:8080"
 	templateDir  string = "./templates"
 	ytdlExe      string = "./dist/youtube-dl"
 	ffmpegExe    string = "./dist/ffmpeg"
