@@ -36,7 +36,7 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 func adminLogoutHandler(w http.ResponseWriter, req *http.Request) {
 	ip := getIPFromRequest(req)
 	ad.EndSession(ip)
-	http.Redirect(w, req, "/", http.StatusSeeOther)
+	http.Redirect(w, req, url("/"), http.StatusSeeOther)
 }
 
 func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
