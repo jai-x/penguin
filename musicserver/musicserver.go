@@ -31,6 +31,7 @@ var (
 	templateDir  string = "./templates"
 	ytdlExe      string = "./dist/youtube-dl"
 	ffmpegExe    string = "./dist/ffmpeg"
+	port         string = ":8080"
 	plBuckets    int = 5
 )
 
@@ -70,6 +71,7 @@ func Run() {
 	// Debug url endpoints
 	http.HandleFunc("/debug/playlist", debugListHandler)
 	http.HandleFunc("/debug/ip", debugIPHandler)
+	http.HandleFunc("/debug/header", debugHeaderHandler)
 
 	// Serve website static files
 	fs := http.FileServer(http.Dir("./static"))
@@ -86,11 +88,13 @@ func Run() {
 	// Start video player
 	if !noPlayer {
 		go videoPlayer()
+	} else {
+		log.Println("Video player disabled")
 	}
 
 	// Start server
-	log.Println("Serving on localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
+	log.Println("Serving on port:", port)
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

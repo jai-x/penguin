@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 	"path/filepath"
+	"net/http"
 
 	"./playlist"
 	"./youtube"
@@ -14,11 +15,26 @@ type playlistInfo struct {
 	Playlist  [][]playlist.Video
 }
 
-func newPlaylistInfo(addr string) playlistInfo {
-	ip := ip(addr)
+func newPlaylistInfo(ip string) playlistInfo {
 	alias, _ := al.Alias(ip)
 	out := playlistInfo{alias, pl.Playlist()}
 	return out
+}
+
+func getIPFromRequest(req *http.Request) string {
+	// Check for x forward header
+	xfIPList := req.Header.Get("X-Forwarded-For")
+	// Split comma separated ip list and get the first ip
+	firstXfIP := strings.TrimSpace(strings.Split(xfIPList, ",")[0])
+
+	// First xforwarded ip is non-empty, so return it
+	if len(firstXfIP) > 0 {
+		return firstXfIP
+	} else {
+		// Strip port number from the req.RemoteAddr address
+		i := strings.LastIndex(req.RemoteAddr, ":")
+		return req.RemoteAddr[:i]
+	}
 }
 
 func url(relative string) string {
@@ -46,17 +62,6 @@ func downloadVideo(newLink, uuid string) {
 		return
 	}
 	pl.SetFile(uuid, filepath)
-}
-
-// Addresses are in form "xxx.xxx.xxx.xxx:port"
-// This strips the port number, returning only the IP
-func ip(addr string) string {
-	index := strings.LastIndex(addr, ":")
-	ip := addr[:index]
-	if ip == "[::1]" {
-		return "localhost"
-	}
-	return ip
 }
 
 // Return only file extension including the dot

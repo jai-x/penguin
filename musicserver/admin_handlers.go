@@ -6,8 +6,10 @@ import (
 )
 
 func adminHandler(w http.ResponseWriter, req *http.Request) {
-	if ad.ValidSession(ip(req.RemoteAddr)) {
-		tl.Render(w, "admin", newPlaylistInfo(req.RemoteAddr))
+	ip := getIPFromRequest(req)
+
+	if ad.ValidSession(ip) {
+		tl.Render(w, "admin", newPlaylistInfo(ip))
 	} else {
 		http.Redirect(w, req, url("/admin/login"), http.StatusFound)
 	}
@@ -19,9 +21,10 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	ip := getIPFromRequest(req)
 	pwd := req.PostFormValue("admin_pwd")
 	if ad.ValidPassword(pwd) {
-		ad.StartSession(ip(req.RemoteAddr))
+		ad.StartSession(ip)
 		http.Redirect(w, req, url("/admin"), http.StatusSeeOther)
 		return
 	} else {
@@ -31,12 +34,14 @@ func adminLoginHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func adminLogoutHandler(w http.ResponseWriter, req *http.Request) {
-	ad.EndSession(ip(req.RemoteAddr))
+	ip := getIPFromRequest(req)
+	ad.EndSession(ip)
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
 
 func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == http.MethodPost && ad.ValidSession(ip(req.RemoteAddr)) {
+	ip := getIPFromRequest(req)
+	if req.Method == http.MethodPost && ad.ValidSession(ip) {
 		remUUID := req.PostFormValue("video_id")
 		pl.RemoveVideo(remUUID)
 	}
@@ -44,7 +49,8 @@ func adminRemoveHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func adminKillVideoHandler(w http.ResponseWriter, req *http.Request) {
-	if !ad.ValidSession(ip(req.RemoteAddr)) {
+	ip := getIPFromRequest(req)
+	if !ad.ValidSession(ip) {
 		http.Redirect(w, req, url("/admin/login"), http.StatusFound)
 		return
 	}

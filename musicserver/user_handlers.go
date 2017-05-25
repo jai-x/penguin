@@ -11,11 +11,12 @@ import (
 
 func homeHandler(w http.ResponseWriter, req *http.Request) {
 	// Check if alias set for this ip
-	if _, aliasSet := al.Alias(ip(req.RemoteAddr)); !aliasSet {
+	ip := getIPFromRequest(req)
+	if _, aliasSet := al.Alias(ip); !aliasSet {
 		http.Redirect(w, req, url("/alias"), http.StatusSeeOther)
 		return
 	}
-	tl.Render(w, "home", newPlaylistInfo(req.RemoteAddr))
+	tl.Render(w, "home", newPlaylistInfo(ip))
 }
 
 func aliasHandler(w http.ResponseWriter, req *http.Request) {
@@ -30,16 +31,17 @@ func aliasHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	ip := getIPFromRequest(req)
 	// Set alias in the manager
-	al.SetAlias(ip(req.RemoteAddr), newAlias)
+	al.SetAlias(ip, newAlias)
 	// Update listed aliases in the playlist in new goroutine
-	go pl.UpdateAlias(ip(req.RemoteAddr), newAlias)
+	go pl.UpdateAlias(ip, newAlias)
 
 	http.Redirect(w, req, url("/"), http.StatusSeeOther)
 }
 
 func queueVideoHandler(w http.ResponseWriter, req *http.Request) {
-	ip := ip(req.RemoteAddr)
+	ip := getIPFromRequest(req)
 	if req.Method != http.MethodPost {
 		http.Redirect(w, req, url("/"), http.StatusSeeOther)
 		return
@@ -79,7 +81,7 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ip := ip(req.RemoteAddr)
+	ip := getIPFromRequest(req)
 	// Check if alias set for this ip
 	alias, aliasSet := al.Alias(ip)
 	if !aliasSet {
@@ -128,8 +130,9 @@ func userRemoveHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	ip := getIPFromRequest(req)
 	uuid := req.PostFormValue("video_id")
-	if pl.VideoIP(uuid) == ip(req.RemoteAddr) {
+	if pl.VideoIP(uuid) == ip {
 		pl.RemoveVideo(uuid)
 	}
 	http.Redirect(w, req, url("/"), http.StatusSeeOther)

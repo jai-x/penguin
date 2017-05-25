@@ -9,10 +9,10 @@ import (
 func debugListHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	info := newPlaylistInfo(req.RemoteAddr)
+	ip := getIPFromRequest(req)
+	info := newPlaylistInfo(ip)
 	enc := json.NewEncoder(w)
-	// To pretty print
-	enc.SetIndent("", "\t")
+	enc.SetIndent("", "\t") // To pretty print
 	enc.Encode(info)
 }
 
@@ -20,15 +20,11 @@ func debugListHandler(w http.ResponseWriter, req *http.Request) {
 func debugIPHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	ip := ip(req.RemoteAddr)
-
+	ip := getIPFromRequest(req)
 	enc := json.NewEncoder(w)
-	// To pretty print
-	enc.SetIndent("", "\t")
-
+	enc.SetIndent("", "\t") // To pretty print
 	alias, _ := al.Alias(ip)
-
-	// Anonymouse struct to contain the information
+	// Anonymous struct to contain the information
 	msg := struct {
 		RawAddress string
 		IP         string
@@ -39,4 +35,12 @@ func debugIPHandler(w http.ResponseWriter, req *http.Request) {
 		alias,
 	}
 	enc.Encode(msg)
+}
+
+func debugHeaderHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-type", "application/json")
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t") // To pretty print
+	enc.Encode(req.Header)
 }

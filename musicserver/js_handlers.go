@@ -17,7 +17,7 @@ type AJAXMessage struct {
 func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 	out := json.NewEncoder(w)
-	ip := ip(req.RemoteAddr)
+	ip := getIPFromRequest(req)
 
 	if req.Method != http.MethodPost {
 		msg := AJAXMessage{"Use POST Method", "error"}
@@ -56,7 +56,7 @@ func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 	out := json.NewEncoder(w)
-	ip := ip(req.RemoteAddr)
+	ip := getIPFromRequest(req)
 
 	if req.Method != http.MethodPost {
 		msg := AJAXMessage{"Use POST Method", "error"}
@@ -118,11 +118,13 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func ajaxPlaylistHandler(w http.ResponseWriter, req *http.Request) {
-	info := newPlaylistInfo(req.RemoteAddr)
+	ip := getIPFromRequest(req)
+	info := newPlaylistInfo(ip)
 	tl.Render(w, "playlist", info)
 }
 
 func ajaxAdminPlaylistHandler(w http.ResponseWriter, req *http.Request) {
-	info := newPlaylistInfo(req.RemoteAddr)
+	ip := getIPFromRequest(req)
+	info := newPlaylistInfo(ip)
 	tl.Render(w, "admin_playlist", info)
 }
