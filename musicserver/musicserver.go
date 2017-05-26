@@ -21,9 +21,9 @@ var (
 	vd player.VideoPlayer
 	tl templatecache.TmplCache
 
-
+	// Config file variables
 	vidFolder    string = "/tmp/penguin"
-	vidPlayer    string = "mpv"
+	vidExe       string = "mpv"
 	vidArgs      string = "-fs"
 	vidTimout    string = "547s"
 	adminPass    string = "password"
@@ -33,21 +33,39 @@ var (
 	ffmpegExe    string = "./dist/ffmpeg"
 	port         string = ":8080"
 	plBuckets    int = 5
+
+	// Command line flag set variables
+	noPlayer     bool
+	useTmplCache bool
 )
 
-func Run() {
+func Init() {
+	// Parse command line
+	flag.BoolVar(&noPlayer, "no-player", false, "Disables video playback")
+	flag.BoolVar(&useTmplCache, "template-cache", true, "Set template caching behaviour")
+	flag.Parse()
+
 	// Create new instances of the main strucs
 	al = alias.NewAliasMgr()
 	ad = admin.NewAdminSessions(adminPass, false)
 	pl = playlist.NewPlaylist(plBuckets)
-	tl = templatecache.NewTemplateCache(templateDir, serverDomain)
+
+	// Set domain so that templates have the correct absolute hyperlinks
+	templatecache.SetDomain(serverDomain)
+	tl = templatecache.NewTemplateCache(templateDir, useTmplCache)
+
+	// Set video player setings
+	player.SetPlayer(vidExe, vidArgs)
+	player.SetTimeout(vidTimout)
 
 	// Set youtube settings
 	youtube.SetYTDLPath(ytdlExe)
 	// Optional set
 	youtube.SetFFMPEGPath(ffmpegExe)
 	youtube.SetDownloadFolder(vidFolder)
+}
 
+func Run() {
 	// User facing url endpoints
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/alias", aliasHandler)
@@ -81,10 +99,6 @@ func Run() {
 	ms := http.FileServer(http.Dir(vidFolder))
 	http.Handle("/media/", http.StripPrefix("/media/", ms))
 
-	var noPlayer bool
-	flag.BoolVar(&noPlayer, "noplayer", false, "Disables video playback")
-	flag.Parse()
-
 	// Start video player
 	if !noPlayer {
 		go videoPlayer()
@@ -108,7 +122,7 @@ func videoPlayer() {
 			log.Println(`(/'-')/ No Videos to Play \('-'\)`)
 			time.Sleep(2 * time.Second)
 		} else {
-			vd = player.NewVideoPlayer(vidPlayer, vidArgs, newVid.File, vidTimout)
+			vd = player.NewVideoPlayer(newVid)
 			vd.Play()
 		}
 	}

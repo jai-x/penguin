@@ -5,22 +5,54 @@ import (
 	"net/http"
 )
 
-type TmplCache struct {
-	cache *template.Template
-}
+var (
+	domain  string
 
-func NewTemplateCache(dir, domain string) TmplCache {
-	funcMap := template.FuncMap {
+	funcMap = template.FuncMap {
 		"serverDomain": func() string { return domain },
 	}
-	c := template.Must(template.New("main").Funcs(funcMap).ParseGlob(dir + "/*.html"))
-	return TmplCache{c}
+)
+
+func SetDomain(dom string) {
+	domain = dom
 }
 
-func (t TmplCache) Render(w http.ResponseWriter, tmpl string, d interface{}) {
+type TmplCache struct {
+	cache    *template.Template
+	dir      string
+	useCache bool
+}
+
+func NewTemplateCache(dir string, useCache bool) TmplCache {
+	c := template.Must(template.New("").Funcs(funcMap).ParseGlob(dir + "/*.html"))
+	return TmplCache{c, dir, useCache}
+}
+
+func (t TmplCache) Render(w http.ResponseWriter, name string, d interface{}) {
 	w.Header().Set("Content-type", "text/html")
-	err := t.cache.ExecuteTemplate(w, tmpl + ".html", d)
+
+	// Optionally bypass cache and reparse template at every request
+	// Good for debugging
+	if !t.useCache {
+		t.noCacheRender(w, name, d)
+		return
+	}
+
+	err := t.cache.ExecuteTemplate(w, name + ".html", d)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func (t TmplCache) noCacheRender(w http.ResponseWriter, name string, d interface{}) {
+	out, err := template.New("").Funcs(funcMap).ParseFiles(t.dir + "/" + name + ".html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	err = out.ExecuteTemplate(w, name + ".html", d)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+

@@ -5,39 +5,57 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"../playlist"
 )
 
-type VideoPlayer struct {
-	playerExe    string
-	playerArgs   []string
-	timeout      time.Duration
-	Playing      bool
-	killChan     chan bool
+var (
+	playerExe  string
+	playerArgs []string
+	timeout    time.Duration
+
+)
+
+func SetPlayer(exe, args string) {
+	playerExe = exe
+	// Splitting space sep string into list
+	playerArgs = strings.Fields(args)
 }
 
-func NewVideoPlayer(exe, args, filepath, timeout string) VideoPlayer {
+func SetTimeout(t string) error {
+	err := error(nil)
+	timeout, err = time.ParseDuration(t)
+	return err
+}
+
+type VideoPlayer struct {
+	Playing  bool
+	Vid      playlist.Video
+
+	killChan chan bool
+}
+
+func NewVideoPlayer(vid playlist.Video) VideoPlayer {
 	out := VideoPlayer{}
 	out.killChan = make(chan bool)
 	out.Playing = false
-	out.playerExe = exe
-	out.playerArgs = append(strings.Fields(args), filepath)
-	var err error
-	out.timeout, err = time.ParseDuration(timeout)
-	if err != nil {
-		log.Fatalln("NewVideoPlayer error:", err.Error())
-	}
+	out.Vid = vid
 	return out
 }
 
 func (v *VideoPlayer) Play() {
 	log.Println("Video player started")
-	p := exec.Command(v.playerExe, v.playerArgs...)
-	errChan := make(chan error)
+
+	// Set file to play by appending to end of arguments
+	args := append(playerArgs, v.Vid.File)
+
+	p := exec.Command(playerExe, args...)
 	p.Start()
 	v.Playing = true
 
 	/* Wait for player to end in new goroutine and send err, if any, to the
 	 * channel on exit. */
+	errChan := make(chan error)
 	go func() {
 		errChan <- p.Wait()
 	}()
@@ -50,15 +68,13 @@ func (v *VideoPlayer) Play() {
 		if err != nil {
 			log.Fatalln("Failed to kill video player:", err.Error())
 		}
-		v.Playing = false
 
-	case <-time.After(v.timeout):
+	case <-time.After(timeout):
 		log.Println("Video player timeout")
 		err := p.Process.Kill()
 		if err != nil {
 			log.Fatalln("Failed to kill video player:", err.Error())
 		}
-		v.Playing = false
 
 	case err := <-errChan:
 		if err != nil {
@@ -66,8 +82,8 @@ func (v *VideoPlayer) Play() {
 		} else {
 			log.Println("Video player exited with no error")
 		}
-		v.Playing = false
 	}
+	v.Playing = false
 }
 
 func (v *VideoPlayer) End() {
