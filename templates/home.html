@@ -1,127 +1,163 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>UWCS Music Server</title>
-    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
-    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/custom.css">
-    <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
-  </head>
-  <body>
 
-    <div class="flex-wrapper">
-      <div class="flex-content">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for HTML5 for Linux version 5.4.0">
+  <meta charset="utf-8">
+  <title>UWCS Music Server</title>
+  <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
+  <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/custom.css">
+  <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
+</head>
 
-        <section class="top-bar">
-          <div class="row">
-            <div class="small-12 columns">
-              <div class="top-bar-title">
-                <a href="{{serverDomain}}/">
-                  <strong>
-                    UWCS <span class="accent">Music Server</span>
-                  </strong>
-                </a>
-              </div>
-              <div class="top-bar-left">
-                <ul class="menu">
-                  {{$alias := .UserAlias}}
-                  <li><a href="{{serverDomain}}/alias">{{.UserAlias}}</a></li>
-                </ul>
-              </div>
-              <div class="top-bar-right">
-                <ul class="menu">
-                  <li><a href="{{serverDomain}}/admin">Admin</a></li>
-                </ul>
-              </div>
+<body>
+  <div class="flex-wrapper">
+    <div class="flex-content">
+      <section class="top-bar">
+        <div class="row">
+          <div class="small-12 columns">
+            <div class="top-bar-title">
+              <a href="{{serverDomain}}/"><strong>UWCS <span class=
+              "accent">Music Server</span></strong></a>
+            </div>
+            <div class="top-bar-left">
+              <ul class="menu">
+                {{$alias := .UserAlias}}
+                <li>
+                  <a href=
+                  "{{serverDomain}}/alias">{{.UserAlias}}</a>
+                </li>
+              </ul>
+            </div>
+            <div class="top-bar-right">
+              <ul class="menu">
+                <li>
+                  <a href="{{serverDomain}}/admin">Admin</a>
+                </li>
+              </ul>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="row margin-top-2x">
-          <div class="small-12 columns" id="vid-input">
+	  <div class="row margin-top-2x">
+		<div class="small-12 columns">
+      	<h5>Add a video</h5>
+		</div>
+	  </div>
 
-            <h5>Add a video</h5>
-
-            <!-- Queue video via link -->
-            <form action="{{serverDomain}}/queue" method="POST" id="queue" enctype="multipart/form-data">
-              <div class="input-group">
-                <span class="input-group-label">Video link</span>
-                <input type="url" class="input-group-field" name="video_link" id="queueinput" required placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-                <div class="input-group-button">
-                  <input type="submit" value="Go" class="button" id="queuebutton">
-                </div>
+	  <!-- Queue video via link -->
+      <div class="row">
+        <div class="small-12 columns">
+          
+          <form action="{{serverDomain}}/queue" method="post" id="queue-form" enctype="multipart/form-data" name="queue">
+            <div class="input-group" id="link-group">
+              <span class="input-group-label">Video link</span>
+              <input type="url" class="input-group-field" name="video_link" id="queueinput" required="">
+              <div class="input-group-button">
+                <input type="submit" value="Go" class="button" id="queuebutton">
               </div>
-            </form>
-
-            <!-- Queue video via upload -->
-            <form action="{{serverDomain}}/upload" method="POST" id="upload" enctype="multipart/form-data">
-              <div class="input-group">
-                <span class="input-group-label">Video file</span>
-                <div class="upload-box input-group-field">
-                  <input type="file" name="video_file" class="upload-input" required id="fileinput">
-                </div>
-                <div class="input-group-button">
-                  <input type="submit" value="Go" class="button" id="filebutton">
-                </div>
+            </div>
+			<div class="row collapse" id="queue-options">
+              <div class="small-2 columns">
+				<button class="close-button" type="button" id="close-queue-options">
+				  &times;
+				</button>
+			  </div>
+              <div class="small-2 columns">
+				<label for="sub-checkbox">Download subtitles</label>
               </div>
-            </form>
-
-          </div>
-        </section>
-
-        <hr>
-
-        <section class="row">
-          <div class="small-12 columns" id="main">
-
-            {{range .Playlist}}
-              <div class="callout">
-                {{range .}}
-
-                  {{if and (.Played) (not .NP)}}
-				  <div class="vid done row">
-                  {{else}}
-				  <div class="vid row">
-                  {{end}}
-
-                    <div class="small-7 columns wordwrap">
-					  {{if .Ready}}
-					    <a href="{{serverDomain}}/media/{{.RelativeFile}}" download>{{.Title}}</a>
-					  {{else}}
-                        {{.Title}}
-					  {{end}}
-                    </div>
-
-                    <div class="small-2 columns">
-                      {{if not .Ready}}
-                      Downloading...
-					  {{else if .NP}}
-					  <div class="np-pop">Now Playing</div>
-                      {{else if and (eq .Alias $alias) (not .Played)}}
-                      <form action="{{serverDomain}}/remove" method="POST">
-                        <input type="hidden" name="video_id" value="{{.UUID}}">
-						<button type="submit" class="remove-button">Remove</button>
-                      </form>
-                      {{end}}
-                    </div>
-
-                    <div class="small-3 columns wordwrap">
-                      {{.Alias}}
-                    </div>
-                  </div>
-                {{end}}
+              <div class="small-2 columns">
+                <input type="checkbox" id="sub-checkbox" name="download_subs">
               </div>
-            {{end}}
+              <div class="small-2 columns">
+				<label for="vid-offset">Video start time</label>
+              </div>
+              <div class="small-2 columns last">
+                <input type="text" id="vid-offset" name="" placeholder="9m7s">
+              </div>
+			</div>
+          </form>
 
-          </div>
-        </section>
-
+		</div>
       </div>
+
+	  <!-- Queue video via upload -->
+	  <div class="row">
+		<div class="small-12 columns" id="upload-input">
+
+          <form action="{{serverDomain}}/upload" method="post" id="upload-form" enctype="multipart/form-data" name="upload">
+            <div class="input-group">
+              <span class="input-group-label">Video file</span>
+              <div class="upload-box input-group-field">
+                <input type="file" name="video_file" class="upload-input" required="" id="fileinput">
+              </div>
+              <div class="input-group-button">
+                <input type="submit" value="Go" class="button" id="filebutton">
+              </div>
+            </div>
+          </form>
+          
+		  <div class="progress" role="progressbar" id="progress-outer" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-meter" id="meter" style="width: 0%"></div>
+		  </div>
+
+        </div>
+      </div>
+
+      <hr>
+
+      <section class="row">
+        <div class="small-12 columns" id="main">
+          {{range .Playlist}}
+          <div class="callout">
+            {{range .}}
+
+			  {{if and (.Played) (not .NP)}}
+              <div class="vid done row">
+              {{else}}
+              <div class="vid row">
+              {{end}}
+
+                <div class="small-7 columns wordwrap">
+                  {{if .Ready}}
+				  <a href="{{serverDomain}}/media/{{.RelativeFile}}" download="">{{.Title}}</a>
+				  {{else}}
+				  {{.Title}}
+                  {{end}}
+                </div>
+
+                <div class="small-2 columns">
+                  {{if not .Ready}}
+                  Downloading...
+				  {{else if .NP}}
+                  <div class="np-pop">
+                    Now Playing
+                  </div>
+				  {{else if and (eq .Alias $alias) (not .Played)}}
+                  <form action="{{serverDomain}}/remove" method="post">
+                    <label for="sub-checkbox"><input type="hidden" name="video_id" value="{{.UUID}}">
+                    <button type="submit" class="remove-button">Remove</button>
+                  </form>
+				  {{end}}
+                </div>
+
+                <div class="small-3 columns wordwrap">
+                  {{.Alias}}
+                </div>
+
+              </div>
+			  {{end}}
+            </div>
+			{{end}}
+          </div>
+        </div>
+      </section>
     </div>
-
-    <script type="text/javascript" src="{{serverDomain}}/static/js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="{{serverDomain}}/static/js/notify.min.js"></script>
-	<script type="text/javascript" src="{{serverDomain}}/static/js/user.js"></script>
-
-  </body>
+  </div>
+  <script type="text/javascript" src="{{serverDomain}}/static/js/jquery-3.1.1.min.js"></script> 
+  <script type="text/javascript" src="{{serverDomain}}/static/js/notify.min.js"></script> 
+  <script type="text/javascript" src="{{serverDomain}}/static/js/user.js"></script>
+</body>
 </html>

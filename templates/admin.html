@@ -1,95 +1,85 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Music Server Admin Page</title>
-    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/main.css">
-    <link rel="stylesheet" type="text/css" href="{{serverDomain}}/static/css/custom.css">
-    <link rel="shortcut icon" href="{{serverDomain}}/static/favicon.ico">
-  </head>
-  <body>
-
-    <div class="flex-wrapper">
-      <div class="flex-content">
-
-        <section class="top-bar">
-          <div class="row">
-            <div class="small-12 columns">
-              <div class="top-bar-title">
-                <a href="{{serverDomain}}/">
-                  <strong>
-                    UWCS <span class="accent">Music Server</span> Admin
-                  </strong>
-                </a>
-              </div>
-              <div class="top-bar-right">
-                <ul class="menu">
-                  <li><a href="{{serverDomain}}/admin/logout">Logout</a></li>
-                </ul>
-              </div>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for HTML5 for Linux version 5.4.0">
+  <meta charset="utf-8">
+  <title>Music Server Admin Page</title>
+  <link rel="stylesheet" type="text/css" href=
+  "{{serverDomain}}/static/css/main.css">
+  <link rel="stylesheet" type="text/css" href=
+  "{{serverDomain}}/static/css/custom.css">
+  <link rel="shortcut icon" href=
+  "{{serverDomain}}/static/favicon.ico">
+</head>
+<body>
+  <div class="flex-wrapper">
+    <div class="flex-content">
+      <section class="top-bar">
+        <div class="row">
+          <div class="small-12 columns">
+            <div class="top-bar-title">
+              <a href="{{serverDomain}}/"><strong>UWCS <span class=
+              "accent">Music Server</span> Admin</strong></a>
+            </div>
+            <div class="top-bar-right">
+              <ul class="menu">
+                <li>
+                  <a href=
+                  "{{serverDomain}}/admin/logout">Logout</a>
+                </li>
+              </ul>
             </div>
           </div>
-        </section>
-
-        <section class="row margin-top-2x">
-          <div class="small-12 columns" id="main">
-
-            {{range .Playlist}}
-              <div class="callout">
-                {{range .}}
-
-                  {{if and (.Played) (not .NP)}}
-				  <div class="vid done row">
-                  {{else}}
-				  <div class="vid row">
-                  {{end}}
-
-	
-                    <div class="small-6 columns wordwrap">
-					  {{if .Ready}}
-					    <a href="{{serverDomain}}/media/{{.RelativeFile}}" download>{{.Title}}</a>
-					  {{else}}
-                        {{.Title}}
-					  {{end}}
-                    </div>
-
-					<div class="small-2 columns">
-					  {{if .NP}}
-                    	<div class="np-pop">Now Playing</div>
-					  {{end}}
-					</div>
-
-                    <div class="small-2 columns">
-                      {{if not .Ready}}
-                        Downloading...
-					  {{else if .NP}}
-                        <form action="{{serverDomain}}/admin/kill">
-					      <button type="submit" class="remove-button">Stop</button>
-                        </form>
-                      {{else if not .Played}}
-                        <form action="{{serverDomain}}/admin/remove" method="POST">
-                          <input type="hidden" name="video_id" value="{{.UUID}}">
-						  <button type="submit" class="remove-button">Remove</button>
-                        </form>
-                      {{end}}
-                    </div>
-
-                    <div class="small-2 columns wordwrap">
-                      {{.Alias}}
-                    </div>
-                  </div>
+        </div>
+      </section>
+      <section class="row margin-top-2x">
+        <div class="small-12 columns" id="main">
+          {{range .Playlist}}
+          <div class="callout">
+            {{range .}} {{if and (.Played) (not .NP)}}
+            <div class="vid done row">
+              {{else}}
+              <div class="vid row">
                 {{end}}
-              </div>
-            {{end}}
-
+                <div class="small-6 columns wordwrap">
+                  {{if .Ready}} <a href=
+                  "{{serverDomain}}/media/{{.RelativeFile}}"
+                  download="">{{.Title}}</a> {{else}} {{.Title}}
+                  {{end}}
+                </div>
+                <div class="small-2 columns">
+                  {{if .NP}}
+                  <div class="np-pop">
+                    Now Playing
+                  </div>{{end}}
+                </div>
+                <div class="small-2 columns">
+                  {{if not .Ready}} Downloading... {{else if .NP}}
+                  <form action="{{serverDomain}}/admin/kill">
+                    <button type="submit" class=
+                    "remove-button">Stop</button>
+                  </form>{{else if not .Played}}
+                  <form action="{{serverDomain}}/admin/remove"
+                  method="post">
+                    <input type="hidden" name="video_id" value=
+                    "{{.UUID}}"> <button type="submit" class=
+                    "remove-button">Remove</button>
+                  </form>{{end}}
+                </div>
+                <div class="small-2 columns wordwrap">
+                  {{.Alias}}
+                </div>
+              </div>{{end}}
+            </div>{{end}}
           </div>
-        </section>
-
-      </div>
+        </div>
+      </section>
     </div>
-
-    <script type="text/javascript" src="{{serverDomain}}/static/js/jquery-3.1.1.min.js"></script>
-	<script type="text/javascript" src="{{serverDomain}}/static/js/admin.js"></script>
-
-  </body>
+  </div>
+  <script type="text/javascript" src=
+  "{{serverDomain}}/static/js/jquery-3.1.1.min.js"></script> 
+  <script type="text/javascript" src=
+  "{{serverDomain}}/static/js/admin.js"></script>
+</body>
 </html>

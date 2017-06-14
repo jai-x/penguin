@@ -7,6 +7,12 @@
 	line-height: unset;
 }
 
+.close-button {
+	position: relative;
+	top: -0.25rem;
+	left: 0.25rem;
+}
+
 .upload-box {
 	border-width: 1px;
 	border-style: solid;
@@ -18,6 +24,34 @@
 	margin-left: 0.5rem;
 }
 
+#link-group {
+	margin-bottom: 0.5rem;
+}
+
+#queue-form {
+	margin-bottom: 1rem;
+	will-change: border-style;
+	border-style: solid;
+	border-top: none;
+	border-color: rgb(202, 202, 202);
+	border-width: 1px;
+}
+
+.last {
+	float: left !important;
+}
+
+#queue-options {
+	will-change: display;
+}
+
+#vid-offset {
+	height: 1.75rem;
+	margin-bottom: 0.5rem;
+	padding: initial;
+	padding-left: 0.5rem;
+}
+
 .vid {
 	margin-top: 0.25rem !important;
 	margin-bottom: 0.25rem;
@@ -25,10 +59,6 @@
 
 .vid.done {
 	opacity: 0.3;
-}
-
-.vid.np {
-	/*border: 1px solid green;*/
 }
 
 .np-pop {
@@ -45,4 +75,9 @@
 
 .wordwrap {
 	overflow-wrap: break-word;
+	line-height: initial;
+}
+
+#progress-outer {
+	display: none;
 }

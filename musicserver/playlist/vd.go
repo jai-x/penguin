@@ -15,18 +15,21 @@ type Video struct {
 	File   string
 	IpAddr string
 	Alias  string
+	Offset string
 	Ready  bool
 	Played bool
 	NP     bool
+	Subs   bool
 }
 
 // Creates an new Video struct with a pre-filled UUID variable.
-func NewVideo(ip, alias string) Video {
+func NewVideo(ip, alias string, subs bool) Video {
 	out := Video{}
 	out.UUID = genUUID()
 	out.IpAddr = ip
 	out.Alias = alias
 	out.Title = "New Video..."
+	out.Subs = subs
 	return out
 }
 

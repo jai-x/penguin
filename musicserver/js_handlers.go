@@ -45,7 +45,12 @@ func ajaxQueueHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newVid := playlist.NewVideo(ip, alias)
+	subs := false
+	if req.PostFormValue("download_subs") == "on" {
+		subs = true
+	}
+
+	newVid := playlist.NewVideo(ip, alias, subs)
 	pl.AddVideo(newVid)
 	go downloadVideo(newLink, newVid.UUID)
 
@@ -65,7 +70,13 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	file, header, err := req.FormFile("video_file")
+	if file == nil {
+		msg := AJAXMessage{"No file uploaded", "error"}
+		out.Encode(msg)
+		return
+	}
 	defer file.Close()
+
 	if err != nil {
 		msg := AJAXMessage{"Can't parse uploaded file", "error"}
 		out.Encode(msg)
@@ -85,7 +96,7 @@ func ajaxUploadHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newVid := playlist.NewVideo(ip, alias)
+	newVid := playlist.NewVideo(ip, alias, false)
 	// Gen file path with filename as uuid and get file extension from header
 	newPath := vidFolder + "/" + newVid.UUID  + fileExt(header.Filename)
 

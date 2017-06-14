@@ -1,21 +1,42 @@
 var domain;
 
+hide_link_options();
+
 $(document).ready(function() {
 	domain = window.location.href;
+	if (domain[domain.length - 1] === "/") {
+		// Remove trailing slash
+		domain = domain.slice(0, -1);
+	}
+
+	// Show link options on focus
+	$("#queueinput").focus(show_link_options);
+	$("#close-queue-options").click(hide_link_options);
+
 	// Form overrides to callback functions
-    $("#queue").submit(ajax_queue);
-    $("#upload").submit(ajax_upload);
+    $("#queue-form").submit(ajax_queue);
+    $("#upload-form").submit(ajax_upload);
 	// Ajax polling to update page
     playlist_refresh();
 });
 
-var progress_bar_html = `
-	<div class="progress" role="progressbar" id="progress-outer" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-		<div class="progress-meter" id="meter" style="width: 0%"></div>
-	</div>
-`;
+function hide_link_options() {
+	$("#queue-options").hide();
+	$("#link-group").css("margin-bottom", 0);
+	$("#queue-form").css("border-style", "none");
+}
+
+function show_link_options() {
+	// Animation is pure swag
+	$("#queue-options").show(100);
+	// Reset to initial values in css file
+	$("#link-group").css("margin-bottom", "");
+	$("#queue-form").css("border-style", "");
+}
 
 function ajax_queue(event) {
+	// Hide the extra options
+	hide_link_options();
     // Stop the normal button behaviour
     event.preventDefault();
     // Set form button to Submitting...
@@ -24,6 +45,8 @@ function ajax_queue(event) {
     // Get form data
     var formData = {
 		"video_link": $("input[name=video_link]").val(),
+		"download_subs": $("input[name=download_subs]").val(),
+		"vid_offset": $("input[name=vid_offset]").val(),
     }
     // The ajax request
     $.ajax({
@@ -34,10 +57,12 @@ function ajax_queue(event) {
     .done(function(data) {
         // Reset form button and link input
     	$("#queuebutton").attr("disabled", false);
+		$("#sub-checkbox").prop("checked", false);
         $("#queuebutton").val("Go");
         $("#queueinput").val("");
+        $("#vid-offset").val("");
         // Notify user from response data
-        $("#queue").notify(data.Response, data.Type);
+        $("#queue-form").notify(data.Response, data.Type);
     });
 }
 
@@ -47,13 +72,13 @@ function ajax_upload(event) {
     // Set form button to Submitting...
     $("#filebutton").val("Submitting...");
     $("#filebutton").attr("disabled", true);
-	// Add progress bar to DOM
-    $("#vid-input").append(progress_bar_html);
+	// Show progress bar
+    $("#progress-outer").show(100);
     // The ajax request
     $.ajax({
 		type: "POST",
 		url: domain + "/ajax/upload",
-		data: new FormData($("#upload")[0]),
+		data: new FormData($("#upload-form")[0]),
 		cache: false,
 		processData: false,
 		contentType: false,
@@ -78,10 +103,11 @@ function ajax_upload(event) {
         $("#filebutton").attr("disabled", false);
         $("#filebutton").val("Go");
         $("#fileinput").val("");
-		// Remove progress bar
-		$("#progress-outer").remove();
+		// Remove and reset progress bar
+		$("#progress-outer").css("display", "");
+		$("#meter").css("width", "0%");
         // Notify user from response data
-        $("#upload").notify(data.Response, data.Type);
+        $("#upload-form").notify(data.Response, data.Type);
     });
 }
 

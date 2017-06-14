@@ -59,7 +59,12 @@ func queueVideoHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	newLink := req.PostFormValue("video_link")
-	newVideo := playlist.NewVideo(ip, alias)
+	subs := false
+	if req.PostFormValue("download_subs") == "on" {
+		subs = true
+	}
+
+	newVideo := playlist.NewVideo(ip, alias, subs)
 	pl.AddVideo(newVideo)
 	go downloadVideo(newLink, newVideo.UUID)
 
@@ -75,7 +80,12 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 	// Open video file from post request before redirects can occur or the 
 	// connection may be reset.
 	file, header, err := req.FormFile("video_file")
+	if file == nil {
+		tl.Render(w, "not_added", "No file uploaded")
+		return
+	}
 	defer file.Close()
+
 	if err != nil {
 		tl.Render(w, "not_added", "Cannot parse uploaded file")
 		return
@@ -94,7 +104,7 @@ func uploadVideoHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newVid := playlist.NewVideo(ip, alias)
+	newVid := playlist.NewVideo(ip, alias, false)
 	// Gen file path with filename as uuid and get file extension from header
 	newPath := vidFolder + "/" + newVid.UUID  + fileExt(header.Filename)
 

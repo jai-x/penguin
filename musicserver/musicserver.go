@@ -27,7 +27,7 @@ var (
 	vidArgs      string = "-fs"
 	vidTimout    string = "547s"
 	adminPass    string = "password"
-	serverDomain string = "http://localhost:8080"
+	serverDomain string = "http://192.168.0.15:8080"
 	templateDir  string = "./templates"
 	ytdlExe      string = "./dist/youtube-dl"
 	ffmpegExe    string = "./dist/ffmpeg"
@@ -35,13 +35,13 @@ var (
 	plBuckets    int = 5
 
 	// Command line flag set variables
-	noPlayer     bool
+	playVideos   bool
 	useTmplCache bool
 )
 
 func Init() {
 	// Parse command line
-	flag.BoolVar(&noPlayer, "no-player", false, "Disables video playback")
+	flag.BoolVar(&playVideos, "play-videos", true, "Set video playback behaviour")
 	flag.BoolVar(&useTmplCache, "template-cache", true, "Set template caching behaviour")
 	flag.Parse()
 
@@ -53,6 +53,9 @@ func Init() {
 	// Set domain so that templates have the correct absolute hyperlinks
 	templatecache.SetDomain(serverDomain)
 	tl = templatecache.NewTemplateCache(templateDir, useTmplCache)
+	if !useTmplCache {
+		log.Println("Template caching disabled")
+	}
 
 	// Set video player setings
 	player.SetPlayer(vidExe, vidArgs)
@@ -100,7 +103,7 @@ func Run() {
 	http.Handle("/media/", http.StripPrefix("/media/", ms))
 
 	// Start video player
-	if !noPlayer {
+	if playVideos {
 		go videoPlayer()
 	} else {
 		log.Println("Video player disabled")

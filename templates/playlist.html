@@ -1,40 +1,41 @@
-{{$alias := .UserAlias}}
+{{$alias := .UserAlias}} {{range .Playlist}}
+<div class="callout">
+  {{range .}}
 
-{{range .Playlist}}
-  <div class="callout">
-    {{range .}}
-
-      {{if and (.Played) (not .NP)}}
-	  <div class="vid done row">
-      {{else}}
-	  <div class="vid row">
-      {{end}}
-
-        <div class="small-7 columns wordwrap">
-		  {{if .Ready}}
-		    <a href="{{serverDomain}}/media/{{.RelativeFile}}" download>{{.Title}}</a>
-		  {{else}}
-            {{.Title}}
-		  {{end}}
-        </div>
-
-        <div class="small-2 columns">
-          {{if not .Ready}}
-          Downloading...
-		  {{else if .NP}}
-		  <div class="np-pop">Now Playing</div>
-          {{else if and (eq .Alias $alias) (not .Played)}}
-          <form action="{{serverDomain}}/remove" method="POST">
-            <input type="hidden" name="video_id" value="{{.UUID}}">
-			<button type="submit" class="remove-button">Remove</button>
-          </form>
-          {{end}}
-        </div>
-
-        <div class="small-3 columns wordwrap">
-          {{.Alias}}
-        </div>
+  {{if and (.Played) (not .NP)}}
+  <div class="vid done row">
+  {{else}}
+  <div class="vid row">
+  {{end}}
+      <div class="small-7 columns wordwrap">
+        {{if .Ready}}
+		<a href="{{serverDomain}}/media/{{.RelativeFile}}" download="">{{.Title}}</a>
+		{{else}}
+		{{.Title}}
+		{{end}}
       </div>
+
+      <div class="small-2 columns">
+        {{if not .Ready}}
+          Downloading...
+		{{else if .NP}}
+          <div class="np-pop">
+            Now Playing
+          </div>
+		{{else if and (eq .Alias $alias) (not .Played)}}
+          <form action="{{serverDomain}}/remove" method="post">
+            <input type="hidden" name="video_id" value="{{.UUID}}">
+            <button type="submit" class=
+            "remove-button">Remove</button>
+          </form>
+		{{end}}
+      </div>
+
+      <div class="small-3 columns wordwrap">
+        {{.Alias}}
+      </div>
+    </div>
     {{end}}
   </div>
-{{end}}
+  {{end}}
+</div>
