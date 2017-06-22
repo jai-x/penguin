@@ -1,14 +1,14 @@
 package musicserver
 
 import (
-	"log"
-	"strings"
-	"path/filepath"
-	"net/http"
 	"errors"
-	"time"
-	"os"
 	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"./playlist"
 	"./youtube"
@@ -45,27 +45,27 @@ func url(relative string) string {
 	return serverDomain + relative
 }
 
-func downloadVideo(newLink, uuid string) {
+func downloadVideo(newLink string, newVid playlist.Video) {
 	// New downloader
-	dl := youtube.NewDownloader(newLink, uuid)
+	dl := youtube.NewDownloader(newLink, newVid.UUID, newVid.Subs)
 
 	// fetch and set title
 	title, err := dl.Title()
 	if err != nil {
 		log.Println("Title fetch error:", newLink, err.Error())
-		pl.RemoveVideo(uuid)
+		pl.RemoveVideo(newVid.UUID)
 		return
 	}
-	pl.SetTitle(uuid, title)
+	pl.SetTitle(newVid.UUID, title)
 
 	// Download and set video file
 	filepath, err := dl.Filepath()
 	if err != nil {
 		log.Println("Download error:", title, err.Error())
-		pl.RemoveVideo(uuid)
+		pl.RemoveVideo(newVid.UUID)
 		return
 	}
-	pl.SetFile(uuid, filepath)
+	pl.SetFile(newVid.UUID, filepath)
 }
 
 // Return only file extension including the dot
@@ -73,7 +73,7 @@ func fileExt(file string) string {
 	return filepath.Ext(file)
 }
 
-// Remove file extension 
+// Remove file extension
 func stripFileExt(file string) string {
 	return strings.TrimSuffix(file, filepath.Ext(file))
 }
@@ -108,7 +108,7 @@ func queueLink(req *http.Request) error {
 	newVid.Subs = subs
 	newVid.Offset = offset
 	pl.AddVideo(newVid)
-	go downloadVideo(newLink, newVid.UUID)
+	go downloadVideo(newLink, newVid)
 	return nil
 }
 
@@ -137,7 +137,7 @@ func queueUploadedVideo(req *http.Request) error {
 
 	newVid := playlist.NewVideo(ip, alias)
 	// Gen file path with filename as uuid and get file extension from header
-	newPath := vidFolder + "/" + newVid.UUID  + fileExt(header.Filename)
+	newPath := vidFolder + "/" + newVid.UUID + fileExt(header.Filename)
 
 	// Create file
 	newFile, err := os.Create(newPath)

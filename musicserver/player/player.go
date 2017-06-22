@@ -3,53 +3,47 @@ package player
 import (
 	"log"
 	"os/exec"
-	"strings"
 	"time"
+	"strconv"
 
 	"../playlist"
 )
 
-var (
+type VideoPlayer struct {
+	Playing  bool
+	// Anonymous field
 	playerExe  string
 	playerArgs []string
 	timeout    time.Duration
 
-)
-
-func SetPlayer(exe, args string) {
-	playerExe = exe
-	// Splitting space sep string into list
-	playerArgs = strings.Fields(args)
-}
-
-func SetTimeout(t string) error {
-	err := error(nil)
-	timeout, err = time.ParseDuration(t)
-	return err
-}
-
-type VideoPlayer struct {
-	Playing  bool
-	Vid      playlist.Video
-
 	killChan chan bool
 }
 
-func NewVideoPlayer(vid playlist.Video) VideoPlayer {
-	out := VideoPlayer{}
-	out.killChan = make(chan bool)
-	out.Playing = false
-	out.Vid = vid
+func NewVideoPlayer(t, exe string, args []string, vid playlist.Video) VideoPlayer {
+	newTimeout, _ := time.ParseDuration(t)
+
+	// Start at specific time of Video has offset
+	if vid.Offset > 0 {
+		args = append(args, []string{"--start", strconv.Itoa(vid.Offset)}...)
+	}
+
+	// Append video file to end of arguments to play
+	args = append(args, vid.File)
+
+	out := VideoPlayer{
+		false,
+		exe,
+		args,
+		newTimeout,
+		make(chan bool),
+	}
 	return out
 }
 
 func (v *VideoPlayer) Play() {
 	log.Println("Video player started")
 
-	// Set file to play by appending to end of arguments
-	args := append(playerArgs, v.Vid.File)
-
-	p := exec.Command(playerExe, args...)
+	p := exec.Command(v.playerExe, v.playerArgs...)
 	p.Start()
 	v.Playing = true
 
@@ -66,10 +60,15 @@ func (v *VideoPlayer) Play() {
 		log.Println("Video player killed by admin")
 		err := p.Process.Kill()
 		if err != nil {
-			log.Fatalln("Failed to kill video player:", err.Error())
+			log.Fatalln(
+				"Failed to kill video player:",
+				err.Error(),
+				v.playerExe,
+				v.playerArgs,
+			)
 		}
 
-	case <-time.After(timeout):
+	case <-time.After(v.timeout):
 		log.Println("Video player timeout")
 		err := p.Process.Kill()
 		if err != nil {

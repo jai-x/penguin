@@ -1,17 +1,17 @@
 package musicserver
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"time"
-	"flag"
 
 	"./admin"
 	"./alias"
-	"./playlist"
-	"./youtube"
 	"./player"
+	"./playlist"
 	"./templatecache"
+	"./youtube"
 )
 
 var (
@@ -22,17 +22,17 @@ var (
 	tl templatecache.TmplCache
 
 	// Config file variables
-	vidFolder    string = "/tmp/penguin"
-	vidExe       string = "mpv"
-	vidArgs      string = "-fs"
-	vidTimout    string = "547s"
-	adminPass    string = "password"
-	serverDomain string = "http://192.168.1.154:8080"
-	templateDir  string = "./templates"
-	ytdlExe      string = "./dist/youtube-dl"
-	ffmpegExe    string = "./dist/ffmpeg"
-	port         string = ":8080"
-	plBuckets    int = 5
+	vidFolder    string   = "/tmp/penguin"
+	vidExe       string   = "mpv"
+	vidArgs      []string = []string{"-fs", "--slang=eng"}
+	vidTimout    string   = "547s"
+	adminPass    string   = "password"
+	serverDomain string   = "http://192.168.1.154:8080"
+	templateDir  string   = "./templates"
+	ytdlExe      string   = "./dist/youtube-dl"
+	ffmpegExe    string   = "./dist/ffmpeg"
+	port         string   = ":8080"
+	plBuckets    int      = 5
 
 	// Command line flag set variables
 	playVideos   bool
@@ -56,10 +56,6 @@ func Init() {
 	if !useTmplCache {
 		log.Println("Template caching disabled")
 	}
-
-	// Set video player setings
-	player.SetPlayer(vidExe, vidArgs)
-	player.SetTimeout(vidTimout)
 
 	// Set youtube settings
 	youtube.SetYTDLPath(ytdlExe)
@@ -125,7 +121,7 @@ func videoPlayer() {
 			log.Println(`(/'-')/ No Videos to Play \('-'\)`)
 			time.Sleep(2 * time.Second)
 		} else {
-			vd = player.NewVideoPlayer(newVid)
+			vd = player.NewVideoPlayer(vidTimout, vidExe, vidArgs, newVid)
 			vd.Play()
 		}
 	}

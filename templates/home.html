@@ -41,13 +41,13 @@
         </div>
       </section>
 
-	  <div class="row margin-top-2x">
-		<div class="small-12 columns">
-      	<h5>Add a video</h5>
-		</div>
-	  </div>
+    <div class="row margin-top-2x">
+      <div class="small-12 columns">
+      <h5>Add a video</h5>
+      </div>
+    </div>
 
-	  <!-- Queue video via link -->
+    <!-- Queue video via link -->
       <div class="row">
         <div class="small-12 columns">
           
@@ -59,33 +59,33 @@
                 <input type="submit" value="Go" class="button" id="queuebutton">
               </div>
             </div>
-			<div class="row collapse" id="queue-options">
+            <div class="row collapse" id="queue-options">
               <div class="small-2 columns">
-				<button class="close-button" type="button" id="close-queue-options">
-				  &times;
-				</button>
-			  </div>
+                <button class="close-button" type="button" id="close-queue-options">
+                  &times;
+                </button>
+              </div>
               <div class="small-2 columns">
-				<label for="sub-checkbox">Download subtitles</label>
+                <label for="sub-checkbox">Download subtitles</label>
               </div>
               <div class="small-2 columns">
                 <input type="checkbox" id="sub-checkbox" name="download_subs">
               </div>
               <div class="small-2 columns">
-				<label for="vid-offset">Video start time</label>
+                <label for="vid-offset">Video start time</label>
               </div>
               <div class="small-2 columns last">
                 <input type="text" id="vid-offset" name="vid_offset" placeholder="9m7s">
               </div>
-			</div>
+            </div>
           </form>
 
-		</div>
+        </div>
       </div>
 
-	  <!-- Queue video via upload -->
-	  <div class="row">
-		<div class="small-12 columns" id="upload-input">
+      <!-- Queue video via upload -->
+      <div class="row">
+        <div class="small-12 columns" id="upload-input">
 
           <form action="{{serverDomain}}/upload" method="post" id="upload-form" enctype="multipart/form-data" name="upload">
             <div class="input-group">
@@ -99,9 +99,9 @@
             </div>
           </form>
           
-		  <div class="progress" role="progressbar" id="progress-outer" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress" role="progressbar" id="progress-outer" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-meter" id="meter" style="width: 0%"></div>
-		  </div>
+          </div>
 
         </div>
       </div>
@@ -114,7 +114,7 @@
           <div class="callout">
             {{range .}}
 
-			  {{if and (.Played) (not .NP)}}
+               {{if and (.Played) (not .NP)}}
               <div class="vid done row">
               {{else}}
               <div class="vid row">
@@ -122,25 +122,25 @@
 
                 <div class="small-7 columns wordwrap">
                   {{if .Ready}}
-				  <a href="{{serverDomain}}/media/{{.RelativeFile}}" download="">{{.Title}}</a>
-				  {{else}}
-				  {{.Title}}
+                   <a href="{{serverDomain}}/media/{{.RelativeFile}}" download="">{{.Title}}</a>
+                  {{else}}
+                  {{.Title}}
                   {{end}}
                 </div>
 
                 <div class="small-2 columns">
                   {{if not .Ready}}
                   Downloading...
-				  {{else if .NP}}
+                  {{else if .NP}}
                   <div class="np-pop">
                     Now Playing
                   </div>
-				  {{else if and (eq .Alias $alias) (not .Played)}}
+                  {{else if and (eq .Alias $alias) (not .Played)}}
                   <form action="{{serverDomain}}/remove" method="post">
                     <label for="sub-checkbox"><input type="hidden" name="video_id" value="{{.UUID}}">
                     <button type="submit" class="remove-button">Remove</button>
                   </form>
-				  {{end}}
+                  {{end}}
                 </div>
 
                 <div class="small-3 columns wordwrap">
@@ -148,10 +148,10 @@
                 </div>
 
               </div>
-			  {{end}}
             </div>
-			{{end}}
+            {{end}}
           </div>
+          {{end}}
         </div>
       </section>
     </div>
