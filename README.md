@@ -4,7 +4,6 @@ The music server written in Golang
 
 TODO:
 
-* Add support for config file instead of hard-coded values
 * Add support for account creds in youtube-dl to download from website that require an account to watch (e.g. niconico)
 * Youtube link parsing
 * R9K Mode (Video can only be played once, all videos must be unique)
