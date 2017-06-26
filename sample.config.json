@@ -1,0 +1,17 @@
+{
+	"VidFolder": "/tmp/penguin",
+	"VidExe": "mpv",
+	"VidArgs": [
+		"-fs",
+		"--slang=eng"
+	],
+	"VidTimout": "9m7s",
+	"AdminPass": "password",
+	"AdminPassHashed": "",
+	"ServerDomain": "http://172.31.197.65:8080",
+	"TemplateDir": "./templates",
+	"YTDLExe": "./dist/youtube-dl",
+	"FFMPEGExe": "./dist/ffmpeg",
+	"Port": ":8080",
+	"Buckets": 5
+}

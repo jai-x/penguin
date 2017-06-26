@@ -26,7 +26,8 @@ TODO:
 * Install golang
 * `cd` into top level directory
 * Run `go build`
-* Run program: `./penguin <path/to/new/config.json>`
+* Copy `sample.config.json` to `config.json` and edit appropriately
+* Run program: `./penguin`
 
 ### Design goals
 

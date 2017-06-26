@@ -42,12 +42,17 @@ func getIPFromRequest(req *http.Request) string {
 }
 
 func url(relative string) string {
-	return serverDomain + relative
+	return conf.ServerDomain + relative
 }
 
 func downloadVideo(newLink string, newVid playlist.Video) {
+	// New download settings
+	st, err := youtube.NewSettings(conf.YTDLExe, conf.FFMPEGExe, conf.VidFolder)
+	if err != nil {
+		log.Fatalln("Settings for youtube-dl are incorrect:", err.Error())
+	}
 	// New downloader
-	dl := youtube.NewDownloader(newLink, newVid.UUID, newVid.Subs)
+	dl := youtube.NewDownloader(newLink, newVid.UUID, newVid.Subs, st)
 
 	// fetch and set title
 	title, err := dl.Title()
@@ -137,7 +142,7 @@ func queueUploadedVideo(req *http.Request) error {
 
 	newVid := playlist.NewVideo(ip, alias)
 	// Gen file path with filename as uuid and get file extension from header
-	newPath := vidFolder + "/" + newVid.UUID + fileExt(header.Filename)
+	newPath := conf.VidFolder + "/" + newVid.UUID + fileExt(header.Filename)
 
 	// Create file
 	newFile, err := os.Create(newPath)

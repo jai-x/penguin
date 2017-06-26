@@ -8,10 +8,10 @@ import (
 
 	"./admin"
 	"./alias"
+	"./config"
 	"./player"
 	"./playlist"
 	"./templatecache"
-	"./youtube"
 )
 
 var (
@@ -20,19 +20,7 @@ var (
 	pl playlist.Playlist
 	vd player.VideoPlayer
 	tl templatecache.TmplCache
-
-	// Config file variables
-	vidFolder    string   = "/tmp/penguin"
-	vidExe       string   = "mpv"
-	vidArgs      []string = []string{"-fs", "--slang=eng"}
-	vidTimout    string   = "547s"
-	adminPass    string   = "password"
-	serverDomain string   = "http://192.168.1.154:8080"
-	templateDir  string   = "./templates"
-	ytdlExe      string   = "./dist/youtube-dl"
-	ffmpegExe    string   = "./dist/ffmpeg"
-	port         string   = ":8080"
-	plBuckets    int      = 5
+	conf config.Config
 
 	// Command line flag set variables
 	playVideos   bool
@@ -47,21 +35,20 @@ func Init() {
 
 	// Create new instances of the main strucs
 	al = alias.NewAliasMgr()
-	ad = admin.NewAdminSessions(adminPass, false)
-	pl = playlist.NewPlaylist(plBuckets)
+	ad = admin.NewAdminSessions(conf.AdminPass, false)
+	pl = playlist.NewPlaylist(conf.Buckets)
+	var err error
+	conf, err = config.ReadConfig()
+	if err != nil {
+		log.Fatalln("Cannot read config file:", err.Error())
+	}
 
 	// Set domain so that templates have the correct absolute hyperlinks
-	templatecache.SetDomain(serverDomain)
-	tl = templatecache.NewTemplateCache(templateDir, useTmplCache)
+	templatecache.SetDomain(conf.ServerDomain)
+	tl = templatecache.NewTemplateCache(conf.TemplateDir, useTmplCache)
 	if !useTmplCache {
 		log.Println("Template caching disabled")
 	}
-
-	// Set youtube settings
-	youtube.SetYTDLPath(ytdlExe)
-	// Optional set
-	youtube.SetFFMPEGPath(ffmpegExe)
-	youtube.SetDownloadFolder(vidFolder)
 }
 
 func Run() {
@@ -95,7 +82,7 @@ func Run() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// Serve downloaded media files
-	ms := http.FileServer(http.Dir(vidFolder))
+	ms := http.FileServer(http.Dir(conf.VidFolder))
 	http.Handle("/media/", http.StripPrefix("/media/", ms))
 
 	// Start video player
@@ -106,8 +93,8 @@ func Run() {
 	}
 
 	// Start server
-	log.Println("Serving on port:", port)
-	err := http.ListenAndServe(port, nil)
+	log.Println("Serving on port:", conf.Port)
+	err := http.ListenAndServe(conf.Port, nil)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -121,7 +108,7 @@ func videoPlayer() {
 			log.Println(`(/'-')/ No Videos to Play \('-'\)`)
 			time.Sleep(2 * time.Second)
 		} else {
-			vd = player.NewVideoPlayer(vidTimout, vidExe, vidArgs, newVid)
+			vd = player.NewVideoPlayer(conf.VidTimout, conf.VidExe, conf.VidArgs, newVid)
 			vd.Play()
 		}
 	}
