@@ -76,6 +76,7 @@
 .wordwrap {
 	overflow-wrap: break-word;
 	line-height: initial;
+	overflow: hidden;
 }
 
 #progress-outer {
