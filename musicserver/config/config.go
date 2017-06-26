@@ -11,7 +11,6 @@ type Config struct {
 	VidArgs         []string
 	VidTimout       string
 	AdminPass       string
-	AdminPassHashed string
 	ServerDomain    string
 	TemplateDir     string
 	YTDLExe         string

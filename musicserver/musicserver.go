@@ -33,15 +33,15 @@ func Init() {
 	flag.BoolVar(&useTmplCache, "template-cache", true, "Set template caching behaviour")
 	flag.Parse()
 
-	// Create new instances of the main strucs
-	al = alias.NewAliasMgr()
-	ad = admin.NewAdminSessions(conf.AdminPass, false)
-	pl = playlist.NewPlaylist(conf.Buckets)
 	var err error
 	conf, err = config.ReadConfig()
 	if err != nil {
 		log.Fatalln("Cannot read config file:", err.Error())
 	}
+	// Create new instances of the main strucs
+	al = alias.NewAliasMgr()
+	ad = admin.NewAdminSessions(conf.AdminPass, false)
+	pl = playlist.NewPlaylist(conf.Buckets)
 
 	// Set domain so that templates have the correct absolute hyperlinks
 	templatecache.SetDomain(conf.ServerDomain)
