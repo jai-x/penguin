@@ -57,6 +57,10 @@
 	margin-bottom: 0.25rem;
 }
 
+.vid > div.wordwrap > a {
+	line-height: 1.875rem;	
+}
+
 .vid.done {
 	opacity: 0.3;
 }
