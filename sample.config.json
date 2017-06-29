@@ -3,7 +3,8 @@
 	"VidExe": "mpv",
 	"VidArgs": [
 		"-fs",
-		"--slang=eng"
+		"--slang=eng",
+		"--af=drc=2:0.25"
 	],
 	"VidTimout": "9m7s",
 	"AdminPass": "password",
