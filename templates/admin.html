@@ -41,27 +41,33 @@
           </div>
         </div>
       </section>
+
       <section class="row margin-top-2x">
+
         <div class="small-12 columns" id="main">
           {{range .Playlist}}
           <div class="callout">
-            {{range .}} {{if and (.Played) (not .NP)}}
-            <div class="vid done row">
+            {{range .}}
+              {{if and (.Played) (not .NP)}}
+              <div class="vid done row">
               {{else}}
               <div class="vid row">
-                {{end}}
-                <div class="small-6 columns wordwrap">
+              {{end}}
+
+                <div class="small-5 columns wordwrap">
                   {{if .Ready}} <a href=
                   "{{serverDomain}}/media/{{.RelativeFile}}"
                   download="">{{.Title}}</a> {{else}} {{.Title}}
                   {{end}}
                 </div>
+
                 <div class="small-2 columns">
                   {{if .NP}}
                   <div class="np-pop">
                     Now Playing
                   </div>{{end}}
                 </div>
+
                 <div class="small-2 columns">
                   {{if not .Ready}} Downloading... {{else if .NP}}
                   <form action="{{serverDomain}}/admin/kill">
@@ -75,14 +81,24 @@
                     "remove-button">Remove</button>
                   </form>{{end}}
                 </div>
+
+                <div class="small-1 columns wordwrap">
+                  {{.IpAddr}}
+                </div>
+
                 <div class="small-2 columns wordwrap">
                   {{.Alias}}
                 </div>
-              </div>{{end}}
-            </div>{{end}}
+
+              </div>
+              {{end}}
+            </div>
+            {{end}}
           </div>
         </div>
+
       </section>
+
     </div>
   </div>
   <script type="text/javascript" src=

@@ -13,7 +13,7 @@
       {{else}}
       <div class="vid row">
         {{end}}
-        <div class="small-6 columns wordwrap">
+        <div class="small-5 columns wordwrap">
           {{if .Ready}} <a href=
           "{{serverDomain}}/media/{{.RelativeFile}}" download=
           "">{{.Title}}</a> {{else}} {{.Title}} {{end}}
@@ -36,6 +36,9 @@
             <button type="submit" class=
             "remove-button">Remove</button>
           </form>{{end}}
+        </div>
+        <div class="small-1 columns wordwrap">
+          {{.IpAddr}}
         </div>
         <div class="small-2 columns wordwrap">
           {{.Alias}}
