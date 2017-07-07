@@ -9,9 +9,10 @@ type Playlist struct {
 	playlist [][]Video
 
 	sublistNo int
+	R9kmode   bool
 }
 
-func NewPlaylist(b int) Playlist {
+func NewPlaylist(b int, c bool) Playlist {
 	// Default bucket value is 4
 	if b < 1 {
 		b = 4
@@ -19,6 +20,7 @@ func NewPlaylist(b int) Playlist {
 
 	out := Playlist{}
 	out.sublistNo = b
+	out.R9kmode = c
 	out.playlist = make([][]Video, out.sublistNo)
 
 	// Init each subslice of Video in the playlist

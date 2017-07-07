@@ -17,6 +17,7 @@ type Config struct {
 	FFMPEGExe       string
 	Port            string
 	Buckets         int
+	R9kMode         bool
 }
 
 func ReadConfig() (Config, error) {

@@ -11,11 +11,13 @@ import (
 // Video must have valid UUID and IpAddr to be identifible
 type Video struct {
 	UUID   string
+	Hash   string
 	Title  string
 	File   string
 	IpAddr string
 	Alias  string
 	Offset int
+	Length int
 	Ready  bool
 	Played bool
 	NP     bool

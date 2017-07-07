@@ -14,5 +14,6 @@
 	"YTDLExe": "./dist/youtube-dl",
 	"FFMPEGExe": "./dist/ffmpeg",
 	"Port": ":8080",
-	"Buckets": 5
+	"Buckets": 5,
+	"R9kMode": false
 }

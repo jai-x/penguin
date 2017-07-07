@@ -107,11 +107,41 @@ func queueLink(req *http.Request) error {
 	}
 
 	dur, _ := time.ParseDuration(req.PostFormValue("vid_offset"))
+	ldur, _:= time.ParseDuration(req.PostFormValue("vid_length"))
+	if ldur == 0{
+		ldur, _ = time.ParseDuration(conf.VidTimout)
+	}
 	offset := int(dur.Seconds())
+	length := int(ldur.Seconds())
 
 	newVid := playlist.NewVideo(ip, alias)
+	newVid.Hash = newLink
+	
+	// Check if video has been uploaded before, if so, check for intersection with previously played sections
+	if pl.R9kmode {
+		playedSubset, ok := rm[newVid.Hash]
+		if ok {
+			beforeStart := 0
+			beforeEnd := 0
+			for _, i := range playedSubset{
+				if i <= offset{
+				beforeStart = beforeStart + 1
+				}
+				if i < offset+length{
+				beforeEnd = beforeEnd + 1
+				}
+			}
+			if (beforeEnd != beforeStart) || (beforeEnd % 2 == 1){
+				return errors.New("Video not added, no reposts in r9k mode")
+			}
+		}
+		rm[newVid.Hash] = append(rm[newVid.Hash], offset)
+		rm[newVid.Hash] = append(rm[newVid.Hash], offset + length)
+	}
+	
 	newVid.Subs = subs
 	newVid.Offset = offset
+	newVid.Length = length	
 	pl.AddVideo(newVid)
 	go downloadVideo(newLink, newVid)
 	return nil
@@ -161,7 +191,13 @@ func queueUploadedVideo(req *http.Request) error {
 	newVid.Title = stripFileExt(header.Filename)
 	newVid.File = newPath
 	newVid.Ready = true
+	newVid.Hash = ip + newVid.Title
+	playedSubset := rm[newVid.Hash]
+	if playedSubset != nil {
+		return errors.New("Video not added, no reposts in r9k mode")
+	}
 
 	pl.AddVideo(newVid)
+	rm[newVid.Hash] = append(rm[newVid.Hash], 0)
 	return nil
 }
