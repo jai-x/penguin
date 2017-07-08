@@ -47,6 +47,7 @@ function ajax_queue(event) {
 		"video_link": $("input[name=video_link]").val(),
 		"download_subs": $("input[name=download_subs]").val(),
 		"vid_offset": $("input[name=vid_offset]").val(),
+		"vid_length": $("input[name=vid_length]").val(),
     }
     // The ajax request
     $.ajax({

@@ -18,6 +18,7 @@ var (
 	al alias.AliasMgr
 	ad admin.AdminSessions
 	pl playlist.Playlist
+	rm map[string][]int
 	vd player.VideoPlayer
 	tl templatecache.TmplCache
 	conf config.Config
@@ -41,7 +42,8 @@ func Init() {
 	// Create new instances of the main strucs
 	al = alias.NewAliasMgr()
 	ad = admin.NewAdminSessions(conf.AdminPass, false)
-	pl = playlist.NewPlaylist(conf.Buckets)
+	pl = playlist.NewPlaylist(conf.Buckets, conf.R9kMode)
+	rm = make(map[string][]int)
 
 	// Set domain so that templates have the correct absolute hyperlinks
 	templatecache.SetDomain(conf.ServerDomain)

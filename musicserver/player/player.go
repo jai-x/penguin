@@ -22,9 +22,14 @@ type VideoPlayer struct {
 func NewVideoPlayer(t, exe string, args []string, vid playlist.Video) VideoPlayer {
 	newTimeout, _ := time.ParseDuration(t)
 
-	// Start at specific time of Video has offset
+	// Start at specific time if Video has offset
 	if vid.Offset > 0 {
 		args = append(args, []string{"--start", strconv.Itoa(vid.Offset)}...)
+	}
+	
+	// Set length if video has specified length (will end earlier if VidTimeout is shorter)
+	if vid.Length > 0{
+		args = append(args, []string{"--length", strconv.Itoa(vid.Length)}...)
 	}
 
 	// Append video file to end of arguments to play
