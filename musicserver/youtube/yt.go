@@ -32,7 +32,7 @@ func NewSettings(yt, ffmpeg, dl string) (Settings, error) {
 		return Settings{}, err
 	}
 
-	// Check if the download folde exists
+	// Check if the download folder exists
 	if _, err := os.Stat(dl); os.IsNotExist(err) {
 		// folder doesn't exist so create it
 		err = os.MkdirAll(dl, 0755)
@@ -76,6 +76,14 @@ func (d *Downloader) Title() (string, error) {
 	output, err := dl.Output()
 	title := strings.TrimSpace(string(output))
 	return title, err
+}
+
+func (d *Downloader) Id() (string, error) {
+	args := []string{"--get-id", "--no-playlist", d.link}
+	dl := exec.Command(d.settings.ytExe, args...)
+	output, err := dl.Output()
+	id := strings.TrimSpace(string(output))
+	return id, err
 }
 
 // Downloads video and returns filepath as string to downloaded video file.

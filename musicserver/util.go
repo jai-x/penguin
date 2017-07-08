@@ -62,6 +62,36 @@ func downloadVideo(newLink string, newVid playlist.Video) {
 		return
 	}
 	pl.SetTitle(newVid.UUID, title)
+	
+	if pl.R9kmode{
+		// fetch and set video ID for r9k mode
+		id, err := dl.Id()
+		if err != nil{
+			id = newVid.Hash
+		}
+		pl.SetHash(newVid.UUID, id)
+		
+		// Check if video has been uploaded before, if so, check for intersection with previously played sections
+		playedSubset, repost := rm[id]
+		if repost {
+			beforeStart := 0
+			beforeEnd := 0
+			for _, i := range playedSubset{
+				if i <= newVid.Offset{
+				beforeStart = beforeStart + 1
+				}
+				if i < newVid.Offset+newVid.Length{
+				beforeEnd = beforeEnd + 1
+				}
+			}
+			if (beforeEnd != beforeStart) || (beforeEnd % 2 == 1){
+				log.Println("Reposted video removed")
+				pl.RemoveVideo(newVid.UUID)
+				return
+			}
+		}
+		rm[id] = append(rm[id], newVid.Offset, newVid.Offset + newVid.Length)
+	}
 
 	// Download and set video file
 	filepath, err := dl.Filepath()
@@ -116,28 +146,6 @@ func queueLink(req *http.Request) error {
 
 	newVid := playlist.NewVideo(ip, alias)
 	newVid.Hash = newLink
-	
-	// Check if video has been uploaded before, if so, check for intersection with previously played sections
-	if pl.R9kmode {
-		playedSubset, ok := rm[newVid.Hash]
-		if ok {
-			beforeStart := 0
-			beforeEnd := 0
-			for _, i := range playedSubset{
-				if i <= offset{
-				beforeStart = beforeStart + 1
-				}
-				if i < offset+length{
-				beforeEnd = beforeEnd + 1
-				}
-			}
-			if (beforeEnd != beforeStart) || (beforeEnd % 2 == 1){
-				return errors.New("Video not added, no reposts in r9k mode")
-			}
-		}
-		rm[newVid.Hash] = append(rm[newVid.Hash], offset)
-		rm[newVid.Hash] = append(rm[newVid.Hash], offset + length)
-	}
 	
 	newVid.Subs = subs
 	newVid.Offset = offset

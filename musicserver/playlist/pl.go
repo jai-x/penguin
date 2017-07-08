@@ -132,7 +132,7 @@ func (p *Playlist) RemoveVideo(remUUID string) {
 	p.playlist[out] = append(p.playlist[out][:in], p.playlist[out][in+1:]...)
 }
 
-// Sets Title variable for a Video struct in the playlisy with the matching
+// Sets Title variable for a Video struct in the playlist with the matching
 // UUID.
 func (p *Playlist) SetTitle(vidUUID, newTitle string) {
 	p.mu.Lock()
@@ -142,6 +142,20 @@ func (p *Playlist) SetTitle(vidUUID, newTitle string) {
 		for v, vid := range subl {
 			if vid.UUID == vidUUID {
 				p.playlist[s][v].Title = newTitle
+			}
+		}
+	}
+}
+
+//Sets Hash variable for a Video struct in the playlist with the matching UUID
+func (p *Playlist) SetHash(vidUUID, newHash string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for s, subl := range p.playlist {
+		for v, vid := range subl {
+			if vid.UUID == vidUUID {
+				p.playlist[s][v].Hash = newHash
 			}
 		}
 	}
