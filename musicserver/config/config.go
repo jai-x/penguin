@@ -19,18 +19,18 @@ type Config struct {
 	Buckets         int
 }
 
-func ReadConfig() (Config, error) {
+func ReadConfig() (*Config, error) {
 	out := Config{}
 
 	bytes, err := ioutil.ReadFile("config.json")
 	if err != nil {
-		return out, err
+		return &out, err
 	}
 
 	err = json.Unmarshal(bytes, &out)
 	if err != nil {
-		return out, err
+		return &out, err
 	}
 
-	return out, nil
+	return &out, nil
 }

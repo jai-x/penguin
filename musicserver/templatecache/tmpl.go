@@ -23,9 +23,9 @@ type TmplCache struct {
 	useCache bool
 }
 
-func NewTemplateCache(dir string, useCache bool) TmplCache {
+func NewTemplateCache(dir string, useCache bool) *TmplCache {
 	c := template.Must(template.New("").Funcs(funcMap).ParseGlob(dir + "/*.html"))
-	return TmplCache{c, dir, useCache}
+	return &TmplCache{c, dir, useCache}
 }
 
 func (t TmplCache) Render(w http.ResponseWriter, name string, d interface{}) {

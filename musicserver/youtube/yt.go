@@ -58,15 +58,13 @@ type Downloader struct {
 	settings Settings
 }
 
-func NewDownloader(link, uuid string, subs bool, settings Settings) Downloader {
-	// TODO: youtube link parse
-	out := Downloader{
+func NewDownloader(link, uuid string, subs bool, settings Settings) *Downloader {
+	return &Downloader{
 		link,
 		uuid,
 		subs,
 		settings,
 	}
-	return out
 }
 
 // Returns title of video of the given link.

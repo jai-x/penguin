@@ -14,7 +14,7 @@ type AdminSessions struct {
 	pwdHash string
 }
 
-func NewAdminSessions(newPwd string, preHash bool) AdminSessions {
+func NewAdminSessions(newPwd string, preHash bool) *AdminSessions {
 	out := AdminSessions{}
 
 	out.sessions = make(map[string]time.Time)
@@ -26,7 +26,7 @@ func NewAdminSessions(newPwd string, preHash bool) AdminSessions {
 		out.pwdHash = hashString(newPwd)
 	}
 
-	return out
+	return &out
 }
 
 func (a *AdminSessions) ValidSession(ip string) bool {

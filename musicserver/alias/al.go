@@ -9,11 +9,11 @@ type AliasMgr struct {
 	aliases map[string]string
 }
 
-func NewAliasMgr() AliasMgr {
+func NewAliasMgr() *AliasMgr {
 	out := AliasMgr{}
 
 	out.aliases = make(map[string]string)
-	return out
+	return &out
 }
 
 func (a *AliasMgr) Alias(ip string) (string, bool) {

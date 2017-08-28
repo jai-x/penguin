@@ -11,7 +11,7 @@ type Playlist struct {
 	sublistNo int
 }
 
-func NewPlaylist(b int) Playlist {
+func NewPlaylist(b int) *Playlist {
 	// Default bucket value is 4
 	if b < 1 {
 		b = 4
@@ -26,7 +26,7 @@ func NewPlaylist(b int) Playlist {
 		out.playlist[index] = make([]Video, 0)
 	}
 
-	return out
+	return &out
 }
 
 // Will alter change the number of sublists to the given value. If the new 

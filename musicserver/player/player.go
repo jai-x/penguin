@@ -19,7 +19,7 @@ type VideoPlayer struct {
 	killChan chan bool
 }
 
-func NewVideoPlayer(t, exe string, args []string, vid playlist.Video) VideoPlayer {
+func NewVideoPlayer(t, exe string, args []string, vid playlist.Video) *VideoPlayer {
 	newTimeout, _ := time.ParseDuration(t)
 
 	// Start at specific time of Video has offset
@@ -37,7 +37,7 @@ func NewVideoPlayer(t, exe string, args []string, vid playlist.Video) VideoPlaye
 		newTimeout,
 		make(chan bool),
 	}
-	return out
+	return &out
 }
 
 func (v *VideoPlayer) Play() {

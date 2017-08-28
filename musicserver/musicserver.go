@@ -15,12 +15,12 @@ import (
 )
 
 var (
-	al alias.AliasMgr
-	ad admin.AdminSessions
-	pl playlist.Playlist
-	vd player.VideoPlayer
-	tl templatecache.TmplCache
-	conf config.Config
+	al *alias.AliasMgr
+	ad *admin.AdminSessions
+	pl *playlist.Playlist
+	vd *player.VideoPlayer
+	tl *templatecache.TmplCache
+	conf *config.Config
 
 	// Command line flag set variables
 	playVideos   bool
